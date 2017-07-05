@@ -4,7 +4,7 @@ import STRINGS from '../strings';
 import LawBrowserContainer from './lawBrowserContainer'
 import LawBrowserLink from './lawBrowserLink';
 import { Link } from 'react-router';
-import { AnnualReturnHOC,  AnnualReturnFromRouteHOC } from '../hoc/resources';
+import { AnnualReturnHOC,  AnnualReturnFromRouteHOC, ARReviewHOC } from '../hoc/resources';
 import { stringDateToFormattedString, numberWithCommas, formFieldProps, requireFields } from '../utils';
 import { createResource, addNotification, showARInvite } from '../actions';
 import moment from 'moment';
@@ -57,182 +57,185 @@ const ShowNext = (props) => {
 
 const DECLARATION = "I certify that the information contained in this annual return is correct.";
 
-export const ARSummary = (props) => {
-    const leftColumn = 'col-xs-4 left';
-    const rightColumn = 'col-xs-8 right';
-    const row = "row";
-    const titleRow = "row title-row";
-    const condensedRow = "row";
-    return <div className="annual-return">
-            <h3 className="text-center">Annual Return</h3>
+export class ARSummary extends React.PureComponent  {
+    render() {
+        const props = this.props;
+        const leftColumn = 'col-xs-4 left';
+        const rightColumn = 'col-xs-8 right';
+        const row = "row";
+        const titleRow = "row title-row";
+        const condensedRow = "row";
+        return <div className="annual-return">
+                <h3 className="text-center">Annual Return</h3>
 
-        <div className={ titleRow }>
-            <div className={ leftColumn }>
-                 Details
-            </div>
-        </div>
-
-        <div className={ row }>
-            <div className={ leftColumn }>
-                { STRINGS.companyName }
-            </div>
-            <div className={ rightColumn }>
-                { props.companyState.companyName }
-            </div>
-        </div>
-
-        <div className={ row }>
-            <div className={ leftColumn }>
-                { STRINGS.nzbn }
-            </div>
-            <div className={ rightColumn }>
-                { props.companyState.nzbn }
-            </div>
-        </div>
-
-        <div className={ row }>
-            <div className={ leftColumn }>
-                { STRINGS.effectiveDateString }
-            </div>
-            <div className={ rightColumn }>
-                { props.companyState.effectiveDate }
-            </div>
-        </div>
-
-        <div className={ row }>
-            <div className={ leftColumn }>
-                Filing Year
-            </div>
-            <div className={ rightColumn }>
-                { props.companyState.companyFilingYear }
-            </div>
-        </div>
-
-        <div className={ row }>
-            <div className={ leftColumn }>
-                 { STRINGS.ultimateHoldingCompany }
-            </div>
-            <div className={ rightColumn }>
-                { props.companyState.ultimateHoldingCompany ? 'Yes' : 'No' }
-            </div>
-        </div>
-
-        <div className={ titleRow }>
-            <div className={ leftColumn }>
-                 Required Addresses
-            </div>
-        </div>
-
-        <div className={ row }>
-            <div className={ leftColumn }>
-                 { STRINGS.registeredCompanyAddress }
-            </div>
-            <div className={ rightColumn }>
-                { props.companyState.registeredCompanyAddress }
-            </div>
-        </div>
-
-        <div className={ row }>
-            <div className={ leftColumn }>
-                 { STRINGS.addressForService }
-            </div>
-            <div className={ rightColumn }>
-                { props.companyState.addressForService }
-            </div>
-        </div>
-
-        { /* <div className={ titleRow }>
-            <div className={ leftColumn }>
-                 Optional Addresses
-            </div>
-        </div>
-
-        <div className={ row }>
-            <div className={ leftColumn }>
-                 { STRINGS.addressForShareRegister}
-            </div>
-            <div className={ rightColumn }>
-                { props.companyState.addressForShareRegister }
-            </div>
-        </div> */ }
-        <hr/>
-        <div className={ titleRow }>
-            <div className={ leftColumn }>
-                 Directors
-            </div>
-        </div>
-
-        { props.companyState.directorList.directors.map((director, i) => {
-            return <div key={i}>
-                <div className={ condensedRow }>
-                    <div className={ leftColumn }>
-                         Full Legal Name
-                    </div>
-                    <div className={ rightColumn }>
-                        { director.person.name }
-                    </div>
+            <div className={ titleRow }>
+                <div className={ leftColumn }>
+                     Details
                 </div>
-                <div className={ condensedRow }>
-                    <div className={ leftColumn }>
-                         Residential Address
-                    </div>
-                    <div className={ rightColumn }>
-                        { director.person.address }
-                    </div>
-                </div>
-                <div className={ condensedRow }>
-                    <div className={ leftColumn }>
-                         Appointment Date
-                    </div>
-                    <div className={ rightColumn }>
-                        { stringDateToFormattedString(director.appointment) }
-                    </div>
-                </div>
-                        <hr/>
             </div>
-        })}
 
-        <div className={ titleRow }>
-            <div className={ leftColumn }>
-                 Shareholdings
+            <div className={ row }>
+                <div className={ leftColumn }>
+                    { STRINGS.companyName }
+                </div>
+                <div className={ rightColumn }>
+                    { props.companyState.companyName }
+                </div>
             </div>
+
+            <div className={ row }>
+                <div className={ leftColumn }>
+                    { STRINGS.nzbn }
+                </div>
+                <div className={ rightColumn }>
+                    { props.companyState.nzbn }
+                </div>
+            </div>
+
+            <div className={ row }>
+                <div className={ leftColumn }>
+                    { STRINGS.effectiveDateString }
+                </div>
+                <div className={ rightColumn }>
+                    { props.companyState.effectiveDate }
+                </div>
+            </div>
+
+            <div className={ row }>
+                <div className={ leftColumn }>
+                    Filing Year
+                </div>
+                <div className={ rightColumn }>
+                    { props.companyState.companyFilingYear }
+                </div>
+            </div>
+
+            <div className={ row }>
+                <div className={ leftColumn }>
+                     { STRINGS.ultimateHoldingCompany }
+                </div>
+                <div className={ rightColumn }>
+                    { props.companyState.ultimateHoldingCompany ? 'Yes' : 'No' }
+                </div>
+            </div>
+
+            <div className={ titleRow }>
+                <div className={ leftColumn }>
+                     Required Addresses
+                </div>
+            </div>
+
+            <div className={ row }>
+                <div className={ leftColumn }>
+                     { STRINGS.registeredCompanyAddress }
+                </div>
+                <div className={ rightColumn }>
+                    { props.companyState.registeredCompanyAddress }
+                </div>
+            </div>
+
+            <div className={ row }>
+                <div className={ leftColumn }>
+                     { STRINGS.addressForService }
+                </div>
+                <div className={ rightColumn }>
+                    { props.companyState.addressForService }
+                </div>
+            </div>
+
+            { /* <div className={ titleRow }>
+                <div className={ leftColumn }>
+                     Optional Addresses
+                </div>
+            </div>
+
+            <div className={ row }>
+                <div className={ leftColumn }>
+                     { STRINGS.addressForShareRegister}
+                </div>
+                <div className={ rightColumn }>
+                    { props.companyState.addressForShareRegister }
+                </div>
+            </div> */ }
+            <hr/>
+            <div className={ titleRow }>
+                <div className={ leftColumn }>
+                     Directors
+                </div>
+            </div>
+
+            { props.companyState.directorList.directors.map((director, i) => {
+                return <div key={i}>
+                    <div className={ condensedRow }>
+                        <div className={ leftColumn }>
+                             Full Legal Name
+                        </div>
+                        <div className={ rightColumn }>
+                            { director.person.name }
+                        </div>
+                    </div>
+                    <div className={ condensedRow }>
+                        <div className={ leftColumn }>
+                             Residential Address
+                        </div>
+                        <div className={ rightColumn }>
+                            { director.person.address }
+                        </div>
+                    </div>
+                    <div className={ condensedRow }>
+                        <div className={ leftColumn }>
+                             Appointment Date
+                        </div>
+                        <div className={ rightColumn }>
+                            { stringDateToFormattedString(director.appointment) }
+                        </div>
+                    </div>
+                            <hr/>
+                </div>
+            })}
+
+            <div className={ titleRow }>
+                <div className={ leftColumn }>
+                     Shareholdings
+                </div>
+            </div>
+
+            <div className={ row }>
+                <div className={ leftColumn }>
+                     Total Number of Shares
+                </div>
+                <div className={ rightColumn }>
+                   { numberWithCommas(props.companyState.holdingList.holdings.reduce((sum, h) => {
+                        return sum + h.parcels[0].amount
+                   }, 0))}
+                </div>
+
+
+            </div>
+
+            <hr/>
+
+            { props.companyState.holdingList.holdings.map((holding, i) => {
+                return <div key={i}>
+                    <div className={ row }>
+                        <div className={ leftColumn }>
+                             { numberWithCommas(holding.parcels[0].amount) } Shares
+                        </div>
+                        <div className={ rightColumn }>
+                            { holding.holders.map((holder, j) => {
+                                return <div key={j}>
+                                <div className="name">{ holder.person.name }</div>
+                                <div>{ holder.person.address }</div>
+                                </div>
+                            })}
+                        </div>
+                    </div>
+                    <hr/>
+                </div>
+            })}
+
         </div>
-
-        <div className={ row }>
-            <div className={ leftColumn }>
-                 Total Number of Shares
-            </div>
-            <div className={ rightColumn }>
-               { numberWithCommas(props.companyState.holdingList.holdings.reduce((sum, h) => {
-                    return sum + h.parcels[0].amount
-               }, 0))}
-            </div>
-
-
-        </div>
-
-        <hr/>
-
-        { props.companyState.holdingList.holdings.map((holding, i) => {
-            return <div key={i}>
-                <div className={ row }>
-                    <div className={ leftColumn }>
-                         { numberWithCommas(holding.parcels[0].amount) } Shares
-                    </div>
-                    <div className={ rightColumn }>
-                        { holding.holders.map((holder, j) => {
-                            return <div key={j}>
-                            <div className="name">{ holder.person.name }</div>
-                            <div>{ holder.person.address }</div>
-                            </div>
-                        })}
-                    </div>
-                </div>
-                <hr/>
-            </div>
-        })}
-
-    </div>
+    }
 }
 
 @AnnualReturnFromRouteHOC(true)
@@ -343,7 +346,7 @@ export class ReviewAnnualReturn extends React.PureComponent {
                     </Widget>
         </LawBrowserContainer>
            <ShowNext {...this.props} />
-           </div>
+        </div>
     }
 }
 
@@ -515,5 +518,45 @@ export default class AnnualReturn extends React.PureComponent {
         </LawBrowserContainer>
             <ShowNext {...this.props} />
         </div>
+    }
+}
+
+export function AnnualReturnConfirmation(props) {
+    return <AnnualReturnConfirmationPage code={props.params.code} />
+}
+
+
+export class AnnualReturnConfirmationSummaryAndForm extends React.PureComponent {
+
+    render() {
+        return <div>
+        <p>Hello blah</p>
+        <p>blah has requested you review the annual return shown below.</p>
+        <p>If you have are happy with the details, please click the 'Confirm' button, otherwise you can supply feedback in the form below.</p>
+            <ARSummary companyState={this.props.arConfirmation.arData} />
+        </div>
+    }
+
+}
+
+@ARReviewHOC(true)
+export class AnnualReturnConfirmationPage extends React.PureComponent {
+    renderError() {
+        return  <div className="alert alert-danger">
+                We are sorry, it appears that this link jas expired.
+            </div>
+    }
+
+    render() {
+        const arConfirmation = this.props.arConfirmation;
+        return <div><LawBrowserContainer lawLinks={ARLinks()}>
+              <Widget className="ar-success" title="Review Annual Return">
+                { arConfirmation ._status === 'fetching' && <Loading /> }
+                { arConfirmation ._status === 'error' && this.renderError() }
+                { arConfirmation ._status === 'complete' && <AnnualReturnConfirmationSummaryAndForm {...arConfirmation.data}/> }
+
+            </Widget>
+        </LawBrowserContainer>
+           </div>
     }
 }

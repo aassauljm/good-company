@@ -82,8 +82,6 @@ export class LandingPageView extends React.PureComponent {
         if(this.props.routes.some(r => r.childrenOnly)){
             return this.props.children
         }
-
-
         return  <div>
             <div className="container-fluid page-top">
                 <div className="container">
@@ -97,7 +95,37 @@ export class LandingPageView extends React.PureComponent {
         </div>
     }
 }
+function LandingPageViewNotLoggedIn(props) {
+    const { loggedIn, loginUrl } = props.login;
+    const errorType = props.location.query['error'];
+    if(props.routes.some(r => r.childrenOnly)){
+        return props.children
+    }
+    return  <div>
+        <div className="container-fluid page-top">
+            <div className="container">
+                <div className="welcome-back text-center">
+                    Welcome to Good Companies.  If you have an account, or would like to create one, <a href={loginUrl} className="vanity-link">click here</a>.
+                </div>
+            </div>
+        </div>
+            <div className="container-fluid page-body">
+                  { errorType && <ErrorPage type={errorType} /> }
+                  { props.children }
+            </div>
+    </div>
+}
 
+
+@connect(state => ({ userInfo: state.userInfo, login: state.login}))
+export class LandingPageViewLoginOptional extends React.PureComponent {
+    render() {
+        if(this.props.login.loggedIn){
+            return <LandingPageView {...this.props} />
+        }
+        return <LandingPageViewNotLoggedIn {...this.props} />
+    }
+}
 
 @AsyncHOCFactory([COMPANIES, ALERTS, EVENTS, RECENT_ACTIVITY])
 @connect(state => ({ userInfo: state.userInfo, login: state.login}))

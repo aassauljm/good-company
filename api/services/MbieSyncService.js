@@ -109,7 +109,7 @@ const getUserTokenAndRetry = (user, action) => {
             if (error.status === 401) {
                 return MbieApiBearerTokenService.refreshUserToken(user.id)
                 .then((accessToken) => {
-                    return action(bearerToken);
+                    return action(accessToken);
                 })
             }
 

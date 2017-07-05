@@ -2,7 +2,7 @@
 import { IndexRoute, Route, Router, DefaultRoute } from 'react-router';
 import React from 'react';
 import App, { LoggedInApp } from './components/app';
-import Home, { LandingPageView } from './components/home';
+import Home, { LandingPageView,  LandingPageViewLoginOptional} from './components/home';
 import NotFound from './components/notFound';
 import Documents, { CompanyDocuments } from './components/documents';
 import Document from './components/document';
@@ -125,11 +125,9 @@ export default (store) => {
 
     return <Route name="Home" path="/" component={ App }>
 
-         <Route path='status' component={ Status } />
-        <Route path="*" component={ NotFound } />
-        <Route path="ar_confirmation/:code" component={ AnnualReturnConfirmation } />
 
-        <Route onEnter={requireLogin} component={ LoggedInApp }>
+
+        <Route onEnter={ requireLogin } component={ LoggedInApp }>
             <Route component={ LandingPageView }>
                 <IndexRoute component={ Home }  />
                 <Route name="Recent Activity" path="recent_activity" component={ RecentActivity }  />
@@ -163,6 +161,10 @@ export default (store) => {
             <Route name="View Company" path="company/view/:id" component={ Company } children={CompanyChildren} />
             <Route name="View Company" path="company/at_date/:date/view/:id" component={ CompanyDated } children={CompanyChildren} />
         </Route>
-
+         <Route path='status' component={ Status } />
+         <Route component={ LandingPageViewLoginOptional }>
+            <Route path="ar_confirmation/:code" component={ AnnualReturnConfirmation } />
+        </Route>
+        <Route path="*" component={ NotFound } />
     </Route>
 };

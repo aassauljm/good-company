@@ -7,6 +7,11 @@ import { createResource, hideARInvite, addNotification } from '../../actions';
 import { connect } from 'react-redux';
 import { EmailListForm } from '../forms/email'
 
+/*
+"Invite others to review the annual return by entering their name and email below, or selecting them from the existing users list.  They will receive an email containing a link to review the annual return, notify necessary changes, and confirm the filing of the annual return with the Companies Office."
+*/
+
+
 @connect(state => ({transactionViews: state.transactionViews || DEFAULT_OBJ, sendDocument: state.sendDocument}),
 {
     hide: () => hideARInvite(),

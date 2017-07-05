@@ -137,6 +137,7 @@ export const ALL_PERSONS = {resource: props => `/company/${props.companyId}/all_
 export const INTERESTS_REGISTER_FROM_ROUTE = {resource: props => `/company/${props.params.id}/interests_register`, location: props => `/company/${props.params.id}/interests_register`, propName: 'interestsRegister'};
 export const COMPANY_RECENT_ACTIVITY = {resource: props => `/company/${props.companyId}/recent_activity`, location: props => `/company/${props.companyId}/recent_activity`, propName: 'recentActivity'};
 export const COMPANY_RECENT_ACTIVITY_FULL_FROM_ROUTE = {resource: props => `/company/${props.companyId}/recent_activity/full`, location: props => `/company/${props.companyId}/recent_activity/full`, propName: 'recentActivity'};
+export const AR_REVIEW = {resource: props => `/ar_confirmation/${props.code}`, location: props => `/ar_confirmation/${props.code}`, propName: 'arConfirmation'};
 
 export const AlertsHOC = (async, refreshOnMount) => HOCFactory(ALERTS, async, refreshOnMount);
 export const CompaniesHOC = (async, refreshOnMount) => HOCFactory(COMPANIES,  async, refreshOnMount);
@@ -154,7 +155,7 @@ export const RecentActivityHOC = (async, refreshOnMount) => HOCFactory(RECENT_AC
 export const RecentActivityFullHOC = (async, refreshOnMount) => HOCFactory(RECENT_ACTIVITY_FULL, async, refreshOnMount);
 export const CompanyRecentActivityHOC = (async, refreshOnMount) => HOCFactory(COMPANY_RECENT_ACTIVITY, async, refreshOnMount);
 export const CompanyRecentActivityFullFromRouteHOC = (async, refreshOnMount) => HOCFactory(COMPANY_RECENT_ACTIVITY_FULL_FROM_ROUTE, async, refreshOnMount);
-
+export const ARReviewHOC = (async, refreshOnMount) => HOCFactory(AR_REVIEW, async, refreshOnMount);
 
 export const Injector = (props) => { const {children, ...rest} = props;  return React.cloneElement(children, rest) };
 

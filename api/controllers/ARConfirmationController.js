@@ -27,10 +27,14 @@ module.exports = {
             include: [{
                 model: ARConfirmation,
                 as: 'arConfirmation',
-                include: [{
-                    model: Company,
-                    as: 'company'
-                }]
+                    include: [{
+                        model: Company,
+                        as: 'company'
+                    }, {
+                        model: User,
+                        as: 'user',
+                        attributes: ['username', 'email', 'id']
+                    }]
             }]
         })
         .then((_arc) => {
