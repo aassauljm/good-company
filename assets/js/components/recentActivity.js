@@ -7,6 +7,7 @@ import { requestResource } from '../actions';
 import { stringDateToFormattedStringTime } from '../utils'
 import { Link } from 'react-router'
 import Widget from './widget';
+import STRINGS from '../strings';
 import LawBrowserContainer from './lawBrowserContainer';
 import { RecentActivityHOC, RecentActivityFullHOC, CompanyRecentActivityHOC, CompanyRecentActivityFullFromRouteHOC } from '../hoc/resources';
 
@@ -65,7 +66,7 @@ export class CompanyRecentActivityFull extends React.Component {
                     {activities.map(
                         (row, i) => <tr key={i}>
                         <td>{stringDateToFormattedStringTime(row.createdAt)}</td>
-                        <td>{row.username || STRINGS.unknownUser }</td>
+                        <td>{row.username || row.data.externalUser || STRINGS.unknownUser }</td>
                         <td>{row.description}</td>
                         </tr>) }
                     </tbody>
@@ -100,7 +101,7 @@ export default class RecentActivity extends React.Component {
                     {activities.map(
                         (row, i) => <tr key={i} className="actionable" onClick={() => this.handleClick(row)}>
                         <td>{stringDateToFormattedStringTime(row.createdAt)}</td>
-                        <td>{row.username || STRINGS.unknownUser }</td>
+                        <td>{row.username || row.data.externalUser || STRINGS.unknownUser }</td>
                         <td>{row.description}</td>
                         </tr>) }
                     </tbody>

@@ -1116,13 +1116,13 @@ module.exports = {
                 return ActivityLog.create({
                     type: ActivityLog.types.REQUEST_AR_CONFIRMATION,
                     userId: req.user.id,
-                    description: `Annual Return confirmation for ${companyName} requested`,
+                    description: `Annual return confirmation for ${companyName} requested`,
                     companyId: company.id,
                     data: {companyId: company.id}
                 });
             })
             .then(() => {
-                return res.json({message: `Annual Return confirmation for ${companyName} requested`})
+                return res.json({message: `Annual return confirmation for ${companyName} requested`})
             })
             .catch((e) => {
                 return res.negotiate(e);

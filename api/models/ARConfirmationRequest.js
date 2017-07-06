@@ -24,6 +24,10 @@ module.exports = {
         confirmed: {
             type: Sequelize.BOOLEAN,
             defaultValue: false
+        },
+        deleted: {
+            type: Sequelize.BOOLEAN,
+            defaultValue: false
         }
     },
     associations: function() {

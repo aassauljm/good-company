@@ -49,20 +49,20 @@ module.exports = {
         .then(state => {
             companyName = state.get('companyName');
             const name = req.user ? req.user.username : arc.name;
-            const description = `Annual Return ${values.feedback ? 'Feedback' : 'Confirmation'} for ${companyName} submitted by ${name}`
+            const description = `Annual return ${values.feedback ? 'feedback' : 'confirmation'} for ${companyName}`
             return ActivityLog.create({
                 type: values.feedback ? ActivityLog.types.AR_CONFIRMATION_FEEDBACK : ActivityLog.types.AR_CONFIRMATION,
                 userId: req.user ? req.user.id : null,
                 companyId: company.id,
                 description: description,
-                data: {companyId: company.id}
+                data: {companyId: company.id, externalUser: name}
             });
         })
         .then((result) => {
             if(!result){
                 return res.notFound();
             }
-            return res.json({message: `Annual Return ${values.feedback ? 'Feedback' : 'Confirmation'} for ${companyName} submitted`});
+            return res.json({message: `Annual return ${values.feedback ? 'reedback' : 'confirmation'} for ${companyName} submitted`});
         })
     }
 

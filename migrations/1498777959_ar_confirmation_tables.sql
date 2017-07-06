@@ -42,6 +42,7 @@ CREATE TABLE public.ar_confirmation_request
   "updatedAt" timestamp with time zone NOT NULL,
   "userId" integer,
   "personId" integer,
+  deleted boolean DEFAULT FALSE,
   CONSTRAINT ar_confirmation_request_pkey PRIMARY KEY (id),
   CONSTRAINT "ar_confirmation_request_personId_fkey" FOREIGN KEY ("personId")
       REFERENCES public.person (id) MATCH SIMPLE

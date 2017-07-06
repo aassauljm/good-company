@@ -516,7 +516,7 @@ export default class AnnualReturn extends React.PureComponent {
                 </ConnectCompaniesOffice> }
             </Widget>
         </LawBrowserContainer>
-            <ShowNext {...this.props} />
+        <ShowNext {...this.props} />
         </div>
     }
 }
@@ -527,7 +527,7 @@ export function AnnualReturnConfirmation(props) {
 
 
 @reduxForm({
-    fields: ['confirmed', 'feedback'],
+    fields: ['requiresCorrections', 'feedback'],
     form: 'confirmAR'
 })
 export class AnnualReturnConfirmationForm extends React.PureComponent {
@@ -541,37 +541,33 @@ export class AnnualReturnConfirmationForm extends React.PureComponent {
     }
 
     submitConfirm() {
-        const { confirmed, feedback } = this.props.fields;
-        if(confirmed.value){
-            this.props.submit({confirmed: true})
-        }
+        this.props.submit({confirmed: true, feedback: null})
     }
 
     submitFeedback() {
-        const { confirmed, feedback } = this.props.fields;
-        if(!confirmed.value && feedback.value){
+        const { feedback } = this.props.fields;
+        if(feedback.value){
             this.props.submit({confirmed: false, feedback: feedback.value});
         }
     }
 
     render() {
-        const { confirmed, feedback } = this.props.fields;
+        const { requiresCorrections, feedback } = this.props.fields;
         const Quill = this.quill;
         return <div>
                 <div className="text-center">
-                    { <Input type="checkbox" {...confirmed} label={DECLARATION} /> }
+                    { <Input type="checkbox" {...requiresCorrections} label={'Requires Corrections'} /> }
                 </div>
-                { confirmed.value && <div className="button-row">
+                { !requiresCorrections.value && <div className="button-row">
                     <Button className="confirm" bsStyle="success"onClick={this.submitConfirm} >Confirm Annual Return</Button>
                 </div> }
-                { !confirmed.value && <div className="text-center">
-                <p><strong>- or -</strong></p>
-                <p>If there are any errors, please describe them here</p>
-                </div> }
-                { !confirmed.value && Quill && <Quill {...feedback} /> }
-                { !confirmed.value && !Quill && <Input type="textarea" {...feedback} /> }
-                { !confirmed.value && <div className="button-row">
-                    <Button  bsStyle="danger" disabled={!feedback.value} onClick={this.submitFeedback} >Submit Feedback</Button>
+                { requiresCorrections.value && <div className="text-center">
+                <p><strong>Please describe corrections to be made</strong></p>
+                </div>}
+                { requiresCorrections.value && Quill && <Quill {...feedback} /> }
+                { requiresCorrections.value && !Quill && <Input type="textarea" {...feedback} /> }
+                { requiresCorrections.value && <div className="button-row">
+                    <Button  bsStyle="warning" disabled={!feedback.value} onClick={this.submitFeedback} >Confirm with Corrections</Button>
                 </div> }
 
             </div>
@@ -606,13 +602,13 @@ export class AnnualReturnConfirmationSummaryAndForm extends React.PureComponent 
             <div className="alert alert-success">
             <p>Hello { invitee }</p>
             <p><strong>{ inviter }</strong> has requested you review the annual return for <strong>{ this.props.arConfirmation.arData.companyName }</strong>.</p>
-            <p>If you have are happy with the details, please select the confirmation checkbox and click the <strong>Confirm Annual Return</strong> button, otherwise you can supply feedback in the form below.</p>
+            <p>If you are happy with the details, please select the click the <strong>Confirm Annual Return</strong> button, otherwise you can check the <strong>Requires Corrections</strong> checks and give feedback in the form below.</p>
             </div>
              { submitted && <div className="alert alert-warning">
              <p><strong>{ inviter }</strong> has been notified of your { this.props.confirmed ? 'confirmation' : 'feedback' }, but you can still make further changes if you require.</p>
              </div> }
             <ARSummary companyState={this.props.arConfirmation.arData} />
-            <AnnualReturnConfirmationForm submit={this.submit} initialValues={{confirmed: this.props.confirmed, feedback: this.props.feedback}}/>
+            <AnnualReturnConfirmationForm submit={this.submit} initialValues={{requiresCorrections: !!this.props.feedback, feedback: this.props.feedback}}/>
         </div>
     }
 }
