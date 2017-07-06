@@ -65,7 +65,7 @@ export class CompanyRecentActivityFull extends React.Component {
                     {activities.map(
                         (row, i) => <tr key={i}>
                         <td>{stringDateToFormattedStringTime(row.createdAt)}</td>
-                        <td>{row.username}</td>
+                        <td>{row.username || STRINGS.unknownUser }</td>
                         <td>{row.description}</td>
                         </tr>) }
                     </tbody>
@@ -100,7 +100,7 @@ export default class RecentActivity extends React.Component {
                     {activities.map(
                         (row, i) => <tr key={i} className="actionable" onClick={() => this.handleClick(row)}>
                         <td>{stringDateToFormattedStringTime(row.createdAt)}</td>
-                        <td>{row.username}</td>
+                        <td>{row.username || STRINGS.unknownUser }</td>
                         <td>{row.description}</td>
                         </tr>) }
                     </tbody>

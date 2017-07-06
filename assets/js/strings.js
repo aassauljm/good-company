@@ -25,6 +25,7 @@ export default {
     appointment: 'Appointment Date',
     cessation: 'Cessation of Directorship Date',
     owner: "Owner",
+    unknownUser: "External User",
     shareRegister: {
         shareClass: 'Class of Share',
         name: 'Name of Person',

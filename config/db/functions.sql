@@ -360,7 +360,7 @@ CREATE OR REPLACE FUNCTION activity_log_json(userId integer default null, compan
 
      SELECT a."id", "type", "description", "data", a."createdAt", "userId", "companyId", u.username
      FROM "activity_log" a
-     JOIN public.user u on u.id = "userId"
+     LEFT OUTER JOIN public.user u on u.id = "userId"
      WHERE
     ($1 IS NULL OR a."userId" = $1)
      AND

@@ -8,7 +8,12 @@ module.exports = {
             where: {code: req.params.code},
             include: [{
                 model: ARConfirmation,
-                as: 'arConfirmation'
+                as: 'arConfirmation',
+                include:  [{
+                    model: User,
+                    as: 'user',
+                    attributes: ['username', 'email', 'id']
+                }]
             }]
         })
         .then((result) => {
@@ -19,7 +24,7 @@ module.exports = {
         })
     },
 
-    postARConfirmationFromCode: function(req, res) {
+    updateARConfirmationFromCode: function(req, res) {
         let company, companyName, arc;
         const values = actionUtil.parseValues(req);
         return ARConfirmationRequest.find({
@@ -27,14 +32,10 @@ module.exports = {
             include: [{
                 model: ARConfirmation,
                 as: 'arConfirmation',
-                    include: [{
-                        model: Company,
-                        as: 'company'
-                    }, {
-                        model: User,
-                        as: 'user',
-                        attributes: ['username', 'email', 'id']
-                    }]
+                include: [{
+                    model: Company,
+                    as: 'company'
+                }]
             }]
         })
         .then((_arc) => {

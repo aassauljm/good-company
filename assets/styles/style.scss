@@ -65,7 +65,7 @@ $background-gray: #f2f2f2;
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/utilities";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/responsive-utilities";
 
-
+@import '~react-quill/dist/quill.snow.css';
 
 @import "~font-awesome/scss/variables";
 $fa-font-path: '~font-awesome/fonts';

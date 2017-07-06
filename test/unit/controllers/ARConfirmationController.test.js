@@ -87,7 +87,7 @@ describe('ARConfirmationController', function() {
 
         it('uses code to post confirmation', function(){
             return req
-                .post(`/api/ar_confirmation/${arConfirmationRequests[0].code}`)
+                .put(`/api/ar_confirmation/${arConfirmationRequests[0].code}`)
                 .send({
                     confirmed: true
                 })
@@ -127,7 +127,7 @@ describe('ARConfirmationController', function() {
 
         it('uses code to post confirmation', function(){
             return req
-                .post(`/api/ar_confirmation/${arConfirmationRequests[1].code}`)
+                .put(`/api/ar_confirmation/${arConfirmationRequests[1].code}`)
                 .send({
                    feedback: 'it bad'
                 })
@@ -149,7 +149,7 @@ describe('ARConfirmationController', function() {
 
         it('original user overrides feedback', function(){
             return authedReq
-                .post(`/api/ar_confirmation/${arConfirmationRequests[1].code}`)
+                .put(`/api/ar_confirmation/${arConfirmationRequests[1].code}`)
                 .send({
                    feedback: null,
                    confirmed: true

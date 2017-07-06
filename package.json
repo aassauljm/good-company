@@ -134,6 +134,7 @@
     "react-faux-dom": "^2.4.0",
     "react-overlays": "^0.7.0",
     "react-pdf-component": "github:joshgagnon/react-pdfjs",
+    "react-quill": "github:joshgagnon/react-quill",
     "react-redux": "^5.0.1",
     "react-router": "^3.0.0",
     "react-router-redux": "^4.0.0",

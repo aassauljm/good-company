@@ -136,7 +136,7 @@ export const COMPANY_FROM_DATED_ROUTE = {resource: props => `/company/${props.pa
 export const ALL_PERSONS = {resource: props => `/company/${props.companyId}/all_persons`, location: props => `/company/${props.companyId}/all_persons`};
 export const INTERESTS_REGISTER_FROM_ROUTE = {resource: props => `/company/${props.params.id}/interests_register`, location: props => `/company/${props.params.id}/interests_register`, propName: 'interestsRegister'};
 export const COMPANY_RECENT_ACTIVITY = {resource: props => `/company/${props.companyId}/recent_activity`, location: props => `/company/${props.companyId}/recent_activity`, propName: 'recentActivity'};
-export const COMPANY_RECENT_ACTIVITY_FULL_FROM_ROUTE = {resource: props => `/company/${props.companyId}/recent_activity/full`, location: props => `/company/${props.companyId}/recent_activity/full`, propName: 'recentActivity'};
+export const COMPANY_RECENT_ACTIVITY_FULL_FROM_ROUTE = {resource: props => `/company/${props.params.id}/recent_activity/full`, location: props => `/company/${props.params.id}/recent_activity/full`, propName: 'recentActivity'};
 export const AR_REVIEW = {resource: props => `/ar_confirmation/${props.code}`, location: props => `/ar_confirmation/${props.code}`, propName: 'arConfirmation'};
 
 export const AlertsHOC = (async, refreshOnMount) => HOCFactory(ALERTS, async, refreshOnMount);

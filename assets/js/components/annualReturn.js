@@ -6,7 +6,7 @@ import LawBrowserLink from './lawBrowserLink';
 import { Link } from 'react-router';
 import { AnnualReturnHOC,  AnnualReturnFromRouteHOC, ARReviewHOC } from '../hoc/resources';
 import { stringDateToFormattedString, numberWithCommas, formFieldProps, requireFields } from '../utils';
-import { createResource, addNotification, showARInvite } from '../actions';
+import { createResource, updateResource, addNotification, showARInvite } from '../actions';
 import moment from 'moment';
 import Widget from './widget';
 import Loading from './loading';
@@ -526,24 +526,102 @@ export function AnnualReturnConfirmation(props) {
 }
 
 
-export class AnnualReturnConfirmationSummaryAndForm extends React.PureComponent {
-
-    render() {
-        return <div>
-        <p>Hello blah</p>
-        <p>blah has requested you review the annual return shown below.</p>
-        <p>If you have are happy with the details, please click the 'Confirm' button, otherwise you can supply feedback in the form below.</p>
-            <ARSummary companyState={this.props.arConfirmation.arData} />
-        </div>
+@reduxForm({
+    fields: ['confirmed', 'feedback'],
+    form: 'confirmAR'
+})
+export class AnnualReturnConfirmationForm extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.submitFeedback = ::this.submitFeedback;
+        this.submitConfirm = ::this.submitConfirm;
+        if(typeof document !== 'undefined'){
+            this.quill = require('react-quill');
+        }
     }
 
+    submitConfirm() {
+        const { confirmed, feedback } = this.props.fields;
+        if(confirmed.value){
+            this.props.submit({confirmed: true})
+        }
+    }
+
+    submitFeedback() {
+        const { confirmed, feedback } = this.props.fields;
+        if(!confirmed.value && feedback.value){
+            this.props.submit({confirmed: false, feedback: feedback.value});
+        }
+    }
+
+    render() {
+        const { confirmed, feedback } = this.props.fields;
+        const Quill = this.quill;
+        return <div>
+                <div className="text-center">
+                    { <Input type="checkbox" {...confirmed} label={DECLARATION} /> }
+                </div>
+                { confirmed.value && <div className="button-row">
+                    <Button className="confirm" bsStyle="success"onClick={this.submitConfirm} >Confirm Annual Return</Button>
+                </div> }
+                { !confirmed.value && <div className="text-center">
+                <p><strong>- or -</strong></p>
+                <p>If there are any errors, please describe them here</p>
+                </div> }
+                { !confirmed.value && Quill && <Quill {...feedback} /> }
+                { !confirmed.value && !Quill && <Input type="textarea" {...feedback} /> }
+                { !confirmed.value && <div className="button-row">
+                    <Button  bsStyle="danger" disabled={!feedback.value} onClick={this.submitFeedback} >Submit Feedback</Button>
+                </div> }
+
+            </div>
+        }
+}
+
+@connect(undefined, {
+    updateARConfirmation: (...args) => updateResource(...args),
+    addNotification: (...args) => addNotification(...args)
+})
+export class AnnualReturnConfirmationSummaryAndForm extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.submit = ::this.submit;
+    }
+
+    submit(values) {
+        this.props.updateARConfirmation(`/ar_confirmation/${this.props.code}`, values)
+        .then((response) => {
+            this.props.addNotification({message: response.response.message})
+        })
+        .catch(() => {
+            this.props.addNotification({message: 'Sorry, unable to submit at this time', error: true})
+        })
+    }
+
+    render() {
+        const inviter = this.props.arConfirmation.user.username;
+        const invitee = this.props.name;
+        const submitted = !!this.props.confirmed || this.props.feedback;
+        return <div>
+            <div className="alert alert-success">
+            <p>Hello { invitee }</p>
+            <p><strong>{ inviter }</strong> has requested you review the annual return for <strong>{ this.props.arConfirmation.arData.companyName }</strong>.</p>
+            <p>If you have are happy with the details, please select the confirmation checkbox and click the <strong>Confirm Annual Return</strong> button, otherwise you can supply feedback in the form below.</p>
+            </div>
+             { submitted && <div className="alert alert-warning">
+             <p><strong>{ inviter }</strong> has been notified of your { this.props.confirmed ? 'confirmation' : 'feedback' }, but you can still make further changes if you require.</p>
+             </div> }
+            <ARSummary companyState={this.props.arConfirmation.arData} />
+            <AnnualReturnConfirmationForm submit={this.submit} initialValues={{confirmed: this.props.confirmed, feedback: this.props.feedback}}/>
+        </div>
+    }
 }
 
 @ARReviewHOC(true)
 export class AnnualReturnConfirmationPage extends React.PureComponent {
     renderError() {
         return  <div className="alert alert-danger">
-                We are sorry, it appears that this link jas expired.
+                We are sorry, it appears that this link has expired.
             </div>
     }
 

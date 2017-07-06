@@ -102,7 +102,7 @@ module.exports.policies = {
     },
     ARConfirmationController: {
         'getARConfirmationFromCode': noAuth,
-        'postARConfirmationFromCode': noAuth
+        'updateARConfirmationFromCode': noAuth
     }
 
     /***************************************************************************

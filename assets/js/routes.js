@@ -124,9 +124,6 @@ export default (store) => {
 
 
     return <Route name="Home" path="/" component={ App }>
-
-
-
         <Route onEnter={ requireLogin } component={ LoggedInApp }>
             <Route component={ LandingPageView }>
                 <IndexRoute component={ Home }  />
