@@ -38,7 +38,8 @@ import {
     SHOW_VERSION_WARNING, HIDE_VERSION_WARNING,
     SHOW_BILLING_ISSUE, HIDE_BILLING_ISSUE,
     SHOW_PREVIEW_DOCUMENT, HIDE_PREVIEW_DOCUMENT,
-    SHOW_AR_INVITE, HIDE_AR_INVITE
+    SHOW_AR_INVITE, HIDE_AR_INVITE,
+    SHOW_AR_FEEDBACK, HIDE_AR_FEEDBACK
      } from './actionTypes';
 
 const serialize = function(obj) {
@@ -555,6 +556,17 @@ export function hideARInvite() {
     }
 }
 
+export function showARFeedback(data) {
+    return {
+        type: SHOW_AR_FEEDBACK, data
+    }
+}
+
+export function hideARFeedback() {
+    return {
+        type: HIDE_AR_FEEDBACK
+    }
+}
 
 export function sendDocument(recipients, renderData) {
     renderData = {...renderData, goodCompaniesTemplate: true };

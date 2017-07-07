@@ -4,9 +4,9 @@ import STRINGS from '../strings';
 import LawBrowserContainer from './lawBrowserContainer'
 import LawBrowserLink from './lawBrowserLink';
 import { Link } from 'react-router';
-import { AnnualReturnHOC,  AnnualReturnFromRouteHOC, ARReviewHOC } from '../hoc/resources';
+import { AnnualReturnHOC,  AnnualReturnFromRouteHOC, ARReviewHOC, ARConfirmationsHOC } from '../hoc/resources';
 import { stringDateToFormattedString, numberWithCommas, formFieldProps, requireFields } from '../utils';
-import { createResource, updateResource, addNotification, showARInvite } from '../actions';
+import { createResource, updateResource, deleteResource, addNotification, showARInvite, showARFeedback } from '../actions';
 import moment from 'moment';
 import Widget from './widget';
 import Loading from './loading';
@@ -336,6 +336,7 @@ export class ReviewAnnualReturn extends React.PureComponent {
 
     render() {
         return <div><LawBrowserContainer lawLinks={ARLinks()}>
+                        <AnnualReturnConfirmations companyId={this.props.companyId}/>
               <Widget className="ar-review" title="Review Annual Return">
                     { this.renderWarning()  }
                     { this.props.arSummary && this.props.arSummary._status === 'complete' && this.props.arSummary.data && <Download url={`/api/company/render/${this.props.companyId}/annual_return`} /> }
@@ -344,6 +345,7 @@ export class ReviewAnnualReturn extends React.PureComponent {
                     { this.props.arSummary && this.props.arSummary._status === 'error' && this.renderError() }
                     { this.renderControls() }
                     </Widget>
+
         </LawBrowserContainer>
            <ShowNext {...this.props} />
         </div>
@@ -492,34 +494,81 @@ export class AnnualReturnSubmitted extends React.PureComponent {
 }
 
 
-@connect(state => ({userInfo: state.userInfo}))
-export default class AnnualReturn extends React.PureComponent {
-    render() {
-        const hasCompaniesOfficeIntegration = this.props.userInfo.mbieServices.indexOf('companies-office') >= 0;
-        const due = arDue(this.props.companyState.deadlines);
-        return <div>
-            <LawBrowserContainer lawLinks={ARLinks()}>
-            <Widget className="ar-info" title="Annual Return">
 
-                { !due && <div className="alert alert-warning">According to our records, the annual return for this company is not yet due.</div> }
-                <p>If you have connected your RealMe with the Companies Office, and you have authourity over this company, you can submit an Annual Return.  </p>
-                <DirectDebit />
-                <p>If you have already submitted an annual return independently, please click 'Check for Updates' below to update our records.</p>
-                { hasCompaniesOfficeIntegration && <div><p>Click the button below to generate an annual return for review and submission.</p>
-                    <div className="button-row">
-                        <UpdateSourceData companyId={this.props.companyId} />
-                        <Link to={{pathname: `/company/view/${this.props.companyId}/review_annual_return`, query: this.props.location.query}} className="btn btn-primary">Show Annual Return</Link>
-                        </div>
-                </div> }
-                { !hasCompaniesOfficeIntegration && <ConnectCompaniesOffice redirect={true} >
-                    <UpdateSourceData companyId={this.props.companyId} />
-                </ConnectCompaniesOffice> }
-            </Widget>
-        </LawBrowserContainer>
-        <ShowNext {...this.props} />
-        </div>
+@connect(undefined, {
+    showARFeedback: (...args) => showARFeedback(...args),
+    revokeAR: (companyId, code) => deleteResource(`/company/${companyId}/ar_confirmation/${code}`, {confirmation: {
+            title: 'Confirm Revocation',
+            description: 'This will expire the link sent to this person, preventing them from viewing the annual return.',
+            resolveMessage: 'Confirm Revocation',
+            resolveBsStyle: 'danger'
+        }})
+})
+export class AnnualReturnConfirmationStatus extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.showFeedback = ::this.showFeedback;
+        this.revoke = ::this.revoke;
+    }
+
+    showFeedback() {
+        this.props.showARFeedback(this.props.arRequest)
+    }
+
+    revoke() {
+        this.props.revokeAR(this.props.companyId, this.props.arRequest.code)
+    }
+
+    render() {
+        return <tr>
+            <td>
+                { this.props.arRequest.name }
+            </td>
+            <td>
+                { this.props.arRequest.email }
+            </td>
+            <td>
+            { this.props.arRequest.confirmed && <strong className="text-success">Confirmed</strong>}
+            { this.props.arRequest.feedback && !this.props.arRequest.confirmed && <strong className="text-danger">Has Feedback</strong>}
+            { !this.props.arRequest.confirmed && !this.props.arRequest.feedback && <strong className="text-warning">Pending</strong>}
+            </td>
+            <td>
+            { this.props.arRequest.feedback && !this.props.arRequest.confirmed && <a href="#" className="vanity-link" onClick={this.showFeedback}>View</a>}
+            { !this.props.arRequest.confirmed && !this.props.arRequest.feedback && <a href="#" className="vanity-link" onClick={this.revoke}>Revoke Invitation</a>}
+            </td>
+
+        </tr>
     }
 }
+
+
+@ARConfirmationsHOC()
+export class AnnualReturnConfirmations extends React.PureComponent {
+
+    render() {
+        if(this.props.arConfirmations && this.props.arConfirmations.data){
+            return <Widget title="Annual Return Confirmations">
+                <table className="table table-striped">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                { this.props.arConfirmations.data.arConfirmationRequests.map((r, i) => {
+                    return <AnnualReturnConfirmationStatus key={i} arRequest={r} companyId={this.props.companyId}/>
+                }) }
+                </tbody>
+                </table>
+            </Widget>
+        }
+        return false;
+    }
+}
+
 
 export function AnnualReturnConfirmation(props) {
     return <AnnualReturnConfirmationPage code={props.params.code} />
@@ -602,7 +651,7 @@ export class AnnualReturnConfirmationSummaryAndForm extends React.PureComponent 
             <div className="alert alert-success">
             <p>Hello { invitee }</p>
             <p><strong>{ inviter }</strong> has requested you review the annual return for <strong>{ this.props.arConfirmation.arData.companyName }</strong>.</p>
-            <p>If you are happy with the details, please select the click the <strong>Confirm Annual Return</strong> button, otherwise you can check the <strong>Requires Corrections</strong> checks and give feedback in the form below.</p>
+            <p>If you are happy with the details, please select the click the <strong>Confirm Annual Return</strong> button, otherwise you can check the <strong>Requires Corrections</strong> checkbox and give feedback in the form below.</p>
             </div>
              { submitted && <div className="alert alert-warning">
              <p><strong>{ inviter }</strong> has been notified of your { this.props.confirmed ? 'confirmation' : 'feedback' }, but you can still make further changes if you require.</p>
@@ -627,10 +676,41 @@ export class AnnualReturnConfirmationPage extends React.PureComponent {
               <Widget className="ar-success" title="Review Annual Return">
                 { arConfirmation ._status === 'fetching' && <Loading /> }
                 { arConfirmation ._status === 'error' && this.renderError() }
-                { arConfirmation ._status === 'complete' && <AnnualReturnConfirmationSummaryAndForm {...arConfirmation.data}/> }
-
+                { arConfirmation ._status === 'complete' && <AnnualReturnConfirmationSummaryAndForm {...arConfirmation.data} /> }
             </Widget>
         </LawBrowserContainer>
            </div>
+    }
+}
+
+
+
+@connect(state => ({userInfo: state.userInfo}))
+export default class AnnualReturn extends React.PureComponent {
+    render() {
+        const hasCompaniesOfficeIntegration = this.props.userInfo.mbieServices.indexOf('companies-office') >= 0;
+        const due = arDue(this.props.companyState.deadlines);
+        return <div>
+            <LawBrowserContainer lawLinks={ARLinks()}>
+            <Widget className="ar-info" title="Annual Return">
+
+                { !due && <div className="alert alert-warning">According to our records, the annual return for this company is not yet due.</div> }
+                <p>If you have connected your RealMe with the Companies Office, and you have authourity over this company, you can submit an Annual Return.  </p>
+                <DirectDebit />
+                <p>If you have already submitted an annual return independently, please click 'Check for Updates' below to update our records.</p>
+                { hasCompaniesOfficeIntegration && <div><p>Click the button below to generate an annual return for review and submission.</p>
+                    <div className="button-row">
+                        <UpdateSourceData companyId={this.props.companyId} />
+                        <Link to={{pathname: `/company/view/${this.props.companyId}/review_annual_return`, query: this.props.location.query}} className="btn btn-primary">Show Annual Return</Link>
+                        </div>
+                </div> }
+                { !hasCompaniesOfficeIntegration && <ConnectCompaniesOffice redirect={true} >
+                    <UpdateSourceData companyId={this.props.companyId} />
+                </ConnectCompaniesOffice> }
+            </Widget>
+        <AnnualReturnConfirmations companyId={this.props.companyId}/>
+        </LawBrowserContainer>
+        <ShowNext {...this.props} />
+        </div>
     }
 }

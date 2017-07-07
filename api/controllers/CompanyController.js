@@ -1084,7 +1084,8 @@ module.exports = {
     getARConfirmation: function(req, res) {
         return ARConfirmation.find({where: {companyId: req.params.id}, include: [{
                     model: ARConfirmationRequest,
-                    as: 'arConfirmationRequests'
+                    as: 'arConfirmationRequests',
+                    where: {deleted: false}
                 }]})
             .then((result) => {
                 return res.json(result);
@@ -1104,13 +1105,30 @@ module.exports = {
             })
             .then((state) => {
                 companyName = state.companyName;
+                return ARConfirmation.find({where: {companyId: req.params.id}, include: [{
+                    model: ARConfirmationRequest,
+                    as: 'arConfirmationRequests'
+                }]});
+            })
+            .then(existing => {
                 values.arConfirmationRequests.map(r => {
                     r.code = uuid.v4()
                 });
-                return ARConfirmation.create(values, {include: [{
-                    model: ARConfirmationRequest,
-                    as: 'arConfirmationRequests'
-                }]})
+                if(existing){
+                    return existing.update(values)
+                        .then(() => {
+                            return ARConfirmationRequest.bulkCreate(values.arConfirmationRequests.map(a => {
+                                a.arConfirmationId = existing.id;
+                                return a;
+                            }));
+                        });
+                }
+                else{
+                    return ARConfirmation.create(values, {include: [{
+                        model: ARConfirmationRequest,
+                        as: 'arConfirmationRequests'
+                    }]})
+                }
             })
             .then(() => {
                 return ActivityLog.create({
@@ -1127,6 +1145,27 @@ module.exports = {
             .catch((e) => {
                 return res.negotiate(e);
             })
+    },
+
+    deleteARConfirmationRequest: function(req, res) {
+        const code = req.params.code;
+        return ARConfirmation.find({where: {companyId: req.params.id}, include: [{
+                model: ARConfirmationRequest,
+                as: 'arConfirmationRequests'
+            }]})
+            .then((ar) => {
+                let arRequest = ar.arConfirmationRequests.find(a => a.code = code);
+                if(arRequest){
+                    return arRequest.destroy()
+                }
+            })
+            .then(() => {
+                return res.json({message: `Annual return confirmation revoked`})
+            })
+            .catch((e) => {
+                return res.negotiate(e);
+            })
+
     },
 
     updateUserAuthority: function(req, res) {

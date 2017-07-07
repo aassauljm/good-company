@@ -669,7 +669,7 @@ CREATE OR REPLACE FUNCTION ar_confirmations(companyId integer)
         count(acr) as total
         FROM ar_confirmation ac
         LEFT OUTER JOIN ar_confirmation_request acr on ac.id = acr."arConfirmationId"
-        WHERE "companyId" = $1
+        WHERE "companyId" = $1 AND NOT acr.deleted
        ) q
 $$ LANGUAGE SQL;
 

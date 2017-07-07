@@ -33,7 +33,8 @@ import {
     SHOW_VERSION_WARNING, HIDE_VERSION_WARNING,
     SHOW_BILLING_ISSUE, HIDE_BILLING_ISSUE,
     SHOW_PREVIEW_DOCUMENT, HIDE_PREVIEW_DOCUMENT,
-    SHOW_AR_INVITE, HIDE_AR_INVITE
+    SHOW_AR_INVITE, HIDE_AR_INVITE,
+    SHOW_AR_FEEDBACK, HIDE_AR_FEEDBACK
      } from './actionTypes';
 
 import {
@@ -477,6 +478,11 @@ function modals(state = {}, action) {
             return {...state, arInvite: {renderData: action.data, showing: true}}
         case HIDE_AR_INVITE:
             return {...state, arInvite: {showing: false}}
+
+        case SHOW_AR_FEEDBACK:
+            return {...state, arFeedback: {renderData: action.data, showing: true}}
+        case HIDE_AR_FEEDBACK:
+            return {...state, arFeedback: {showing: false}}
 
         case SHOW_PREVIEW_DOCUMENT:
             return {...state, previewDocument: {renderData: action.data, showing: true}}

@@ -8,6 +8,7 @@ import { LoadingOverlay } from './loading';
 import EmailDocument from './modals/emailDocument';
 import PreviewDocument from './modals/previewDocument';
 import AnnualReturnInvite from './modals/annualReturnInvite';
+import ARFeedback from './modals/arFeedback';
 
 
 
@@ -136,6 +137,9 @@ export default class Modals extends React.Component {
         }
         else if (this.props.modals.previewDocument && this.props.modals.previewDocument.showing) {
             return <PreviewDocument {...this.props.modals.previewDocument } />
+        }
+        else if (this.props.modals.arFeedback && this.props.modals.arFeedback.showing) {
+            return <ARFeedback {...this.props.modals.arFeedback } />
         }
         return false;
     }

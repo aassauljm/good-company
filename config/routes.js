@@ -609,6 +609,11 @@ module.exports.routes = {
         action: 'getARConfirmation'
     },
 
+    'DELETE /api/company/:id/ar_confirmation/:code': {
+        controller: 'CompanyController',
+        action: 'deleteARConfirmationRequest'
+    },
+
     'GET /api/ar_confirmation/:code': {
         controller: 'ARConfirmationController',
         action: 'getARConfirmationFromCode'

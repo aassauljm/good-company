@@ -131,6 +131,7 @@ export const DOCUMENTS_FROM_ROUTE = {resource: props => `/company/${props.params
 export const FOREIGN_PERMISSIONS = {resource: props => `/company/${props.companyId}/foreign_permissions`, location: props => `/company/${props.companyId}/foreign_permissions`, propName: 'foreignPermissions'};
 export const ANNUAL_RETURN = {resource: props => `/company/${props.companyId}/ar_summary`, location: props => `/company/${props.companyId}/ar_summary`, propName: 'arSummary'};
 export const ANNUAL_RETURN_FROM_ROUTE = {resource: props => `/company/${props.params.id}/ar_summary`, location: props => `/company/${props.params.id}/ar_summary`, propName: 'arSummary'};
+export const ANNUAL_RETURN_CONFIRMATIONS = {resource: props => `/company/${props.companyId}/ar_confirmation`, location: props => `/company/${props.companyId}/ar_confirmation`, propName: 'arConfirmations'};
 export const COMPANY_FROM_ROUTE = {resource: props => `/company/${props.params.id}/get_info`, location: props => `/company/${props.params.id}/get_info`, postProcess: analyseCompany};
 export const COMPANY_FROM_DATED_ROUTE = {resource: props => `/company/${props.params.id}/at_date/${props.params.date}`, location: props => `/company/${props.params.id}/at_date/${props.params.date}`, postProcess: analyseCompany};
 export const ALL_PERSONS = {resource: props => `/company/${props.companyId}/all_persons`, location: props => `/company/${props.companyId}/all_persons`};
@@ -156,6 +157,7 @@ export const RecentActivityFullHOC = (async, refreshOnMount) => HOCFactory(RECEN
 export const CompanyRecentActivityHOC = (async, refreshOnMount) => HOCFactory(COMPANY_RECENT_ACTIVITY, async, refreshOnMount);
 export const CompanyRecentActivityFullFromRouteHOC = (async, refreshOnMount) => HOCFactory(COMPANY_RECENT_ACTIVITY_FULL_FROM_ROUTE, async, refreshOnMount);
 export const ARReviewHOC = (async, refreshOnMount) => HOCFactory(AR_REVIEW, async, refreshOnMount);
+export const ARConfirmationsHOC = (async, refreshOnMount) => HOCFactory(ANNUAL_RETURN_CONFIRMATIONS, async, refreshOnMount);
 
 export const Injector = (props) => { const {children, ...rest} = props;  return React.cloneElement(children, rest) };
 
