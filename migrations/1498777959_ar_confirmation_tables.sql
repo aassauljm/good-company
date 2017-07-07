@@ -37,6 +37,7 @@ CREATE TABLE public.ar_confirmation_request
   feedback text,
   email text,
   name text,
+  "requestBy" text,
   confirmed boolean  DEFAULT FALSE,
   "createdAt" timestamp with time zone NOT NULL,
   "updatedAt" timestamp with time zone NOT NULL,

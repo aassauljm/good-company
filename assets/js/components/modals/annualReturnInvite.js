@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import { EmailListForm } from '../forms/email'
 import moment from 'moment';
 import { reduxForm } from 'redux-form';
-import DateInput from '../forms/dateInput';
+import Input from '../forms/input';
 /*
 "Invite others to review the annual return by entering their name and email below, or selecting them from the existing users list.  They will receive an email containing a link to review the annual return, notify necessary changes, and confirm the filing of the annual return with the Companies Office."
 */
@@ -40,7 +40,7 @@ export default class AnnualReturnConfirmationInvite extends React.PureComponent 
             year: this.props.renderData.arData.companyFilingYear,
             arData: this.props.renderData.arData,
             arConfirmationRequests: values.recipients.map((r) => {
-                return {...r, date: this.props.fields.date.value}
+                return {...r, requestBy: this.props.fields.date.value}
             })
         }
         const url = `/company/${this.props.renderData.companyId}/ar_confirmation`
@@ -73,7 +73,7 @@ export default class AnnualReturnConfirmationInvite extends React.PureComponent 
                 units: 'working_days'
             })
             .then((result) => {
-                this.props.fields.date.onChange(moment(result.response.result, 'YYYY-MM-DD').toDate());
+                this.props.fields.date.onChange(moment(result.response.result, 'YYYY-MM-DD').format('D MMMM YYYY'));
             })
     }
 
@@ -94,7 +94,7 @@ export default class AnnualReturnConfirmationInvite extends React.PureComponent 
                     <p>They will receive a link to view and confirm the accuracy of the document, and if necessary, provide feedback for you to evaulate.</p>
                     <p></p>
                     <EmailListForm initialValues={{recipients: [{}]}} ref="form" onSubmit={this.send} />
-                    <DateInput {...this.props.fields.date} label="Please respond by" help="Defaults to last working day of the due month"/>
+                    <Input type="text" {...this.props.fields.date} label="Request a response by" help="Defaults to last working day of the due month"/>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button bsStyle='default' onClick={this.close}>Cancel</Button>

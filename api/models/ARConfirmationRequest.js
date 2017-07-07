@@ -18,6 +18,9 @@ module.exports = {
         email: {
             type: Sequelize.TEXT
         },
+        requestBy: {
+            type: Sequelize.TEXT
+        },
         name: {
             type: Sequelize.TEXT
         },
