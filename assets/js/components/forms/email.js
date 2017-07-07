@@ -17,7 +17,7 @@ const fields = [
 export class Recipient extends React.Component {
     render() {
         return (
-            <div className="input-group-with-remove col-xs-12">
+            <div className="input-group-with-remove">
                 <div>
                     <Input type="text" {...this.formFieldProps('name')} label="" placeholder={STRINGS.emailRecipients.name} />
                 </div>

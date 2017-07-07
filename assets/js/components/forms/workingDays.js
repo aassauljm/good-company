@@ -22,15 +22,15 @@ export default class WorkingDayNotice extends React.Component {
                 scheme: 'companies',
                 start_date: moment(source, this.props.format).format('YYYY-MM-DD'),
                 amount: this.props.days,
-                direction: 'positive',
+                direction: this.props.direction || 'positive',
                 inclusion: 0,
                 units: 'working_days'
             })
-                .then(result => {
-                    if(result && result.response){
-                        this.props.field.onChange(moment(result.response.result, 'YYYY-MM-DD').toDate())
-                    }
-                })
+            .then(result => {
+                if(result && result.response){
+                    this.props.field.onChange(moment(result.response.result, 'YYYY-MM-DD').toDate())
+                }
+            })
         }
     }
 

@@ -3,10 +3,12 @@ import React from 'react';
 import Modal from 'react-bootstrap/lib/Modal';
 import Button from 'react-bootstrap/lib/Button';
 import STRINGS from '../../strings';
-import { createResource, hideARInvite, addNotification } from '../../actions';
+import { createResource, hideARInvite, addNotification, requestWorkingDayOffset } from '../../actions';
 import { connect } from 'react-redux';
 import { EmailListForm } from '../forms/email'
-
+import moment from 'moment';
+import { reduxForm } from 'redux-form';
+import DateInput from '../forms/dateInput';
 /*
 "Invite others to review the annual return by entering their name and email below, or selecting them from the existing users list.  They will receive an email containing a link to review the annual return, notify necessary changes, and confirm the filing of the annual return with the Companies Office."
 */
@@ -16,9 +18,14 @@ import { EmailListForm } from '../forms/email'
 {
     hide: () => hideARInvite(),
     invite: (...args) => createResource(...args),
-    addNotification: (data) => addNotification(data)
+    addNotification: (data) => addNotification(data),
+    requestWorkingDayOffset: (options) => requestWorkingDayOffset(options)
 })
-export default class EmailDocument extends React.Component {
+@reduxForm({
+    form: 'inviteDate',
+    fields: ['date']
+})
+export default class AnnualReturnConfirmationInvite extends React.PureComponent {
     constructor() {
         super();
         this.send = ::this.send;
@@ -32,7 +39,9 @@ export default class EmailDocument extends React.Component {
         const data = {
             year: this.props.renderData.arData.companyFilingYear,
             arData: this.props.renderData.arData,
-            arConfirmationRequests: values.recipients
+            arConfirmationRequests: values.recipients.map((r) => {
+                return {...r, date: this.props.fields.date.value}
+            })
         }
         const url = `/company/${this.props.renderData.companyId}/ar_confirmation`
         this.props.invite(url, data)
@@ -49,11 +58,32 @@ export default class EmailDocument extends React.Component {
             });
     }
 
+    componentDidMount() {
+        const year = this.props.renderData.arData.companyFilingYear;
+        const month = this.props.renderData.arData.arFilingMonth;
+        const format = 'YYYY-MM-DD'
+        const firstDayOfNextMonth = moment().year(year).month(month).day(1).endOf('month').startOf('day').add(1, 'day').format(format)
+
+        return this.props.requestWorkingDayOffset({
+                scheme: 'companies',
+                start_date: firstDayOfNextMonth,
+                amount: 1,
+                direction: 'negative',
+                inclusion: 0,
+                units: 'working_days'
+            })
+            .then((result) => {
+                this.props.fields.date.onChange(moment(result.response.result, 'YYYY-MM-DD').toDate());
+            })
+    }
+
     close() {
         this.props.hide();
     }
 
     render() {
+
+
         return (
             <Modal show={true} onHide={this.close}  backdrop="static">
                 <Modal.Header closeButton>
@@ -64,6 +94,7 @@ export default class EmailDocument extends React.Component {
                     <p>They will receive a link to view and confirm the accuracy of the document, and if necessary, provide feedback for you to evaulate.</p>
                     <p></p>
                     <EmailListForm initialValues={{recipients: [{}]}} ref="form" onSubmit={this.send} />
+                    <DateInput {...this.props.fields.date} label="Please respond by" help="Defaults to last working day of the due month"/>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button bsStyle='default' onClick={this.close}>Cancel</Button>
