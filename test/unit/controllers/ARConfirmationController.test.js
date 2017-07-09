@@ -45,7 +45,7 @@ describe('ARConfirmationController', function() {
                 .expect(200)
                 .then(response => {
                     const annualReturn = response.body.currentCompanyState.deadlines.annualReturn;
-                    annualReturn.confirmations.outstanding.should.be.equal(2);
+                    annualReturn.confirmations.pending.should.be.equal(2);
                     annualReturn.confirmations.confirmed.should.be.equal(0);
                     annualReturn.confirmations.total.should.be.equal(2);
                     annualReturn.confirmations.feedback.should.be.equal(0);
@@ -110,7 +110,7 @@ describe('ARConfirmationController', function() {
                 .expect(200)
                 .then(response => {
                     const annualReturn = response.body.currentCompanyState.deadlines.annualReturn;
-                    annualReturn.confirmations.outstanding.should.be.equal(1);
+                    annualReturn.confirmations.pending.should.be.equal(1);
                     annualReturn.confirmations.confirmed.should.be.equal(1);
                     annualReturn.confirmations.total.should.be.equal(2);
                     annualReturn.confirmations.feedback.should.be.equal(0);
@@ -140,7 +140,7 @@ describe('ARConfirmationController', function() {
                 .expect(200)
                 .then(response => {
                     const annualReturn = response.body.currentCompanyState.deadlines.annualReturn;
-                    annualReturn.confirmations.outstanding.should.be.equal(0);
+                    annualReturn.confirmations.pending.should.be.equal(0);
                     annualReturn.confirmations.confirmed.should.be.equal(1);
                     annualReturn.confirmations.total.should.be.equal(2);
                     annualReturn.confirmations.feedback.should.be.equal(1);
@@ -163,7 +163,7 @@ describe('ARConfirmationController', function() {
                 .expect(200)
                 .then(response => {
                     const annualReturn = response.body.currentCompanyState.deadlines.annualReturn;
-                    annualReturn.confirmations.outstanding.should.be.equal(0);
+                    annualReturn.confirmations.pending.should.be.equal(0);
                     annualReturn.confirmations.confirmed.should.be.equal(2);
                     annualReturn.confirmations.total.should.be.equal(2);
                     annualReturn.confirmations.feedback.should.be.equal(0);

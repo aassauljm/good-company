@@ -138,6 +138,7 @@ export function arDue(deadlines){
     }
 }
 
+
 export function renderDeadlines(deadlines, showTypes, companyId) {
     let i = 0;
     const results = [];
@@ -154,6 +155,22 @@ export function renderDeadlines(deadlines, showTypes, companyId) {
     }
     if(showTypes.indexOf('safe') > -1  && deadlines.annualReturn.filedThisYear){
         results.push(<li key={i++}><div><Link to={url} className={'text-success alert-entry'}><Glyphicon glyph="ok-sign" className="big-icon"/>Annual return already filed this year.</Link></div></li>);
+    }
+    if(showTypes.indexOf('warning') > -1 && deadlines.annualReturn.confirmations){
+        const parts = [];
+        const confirmations = deadlines.annualReturn.confirmations;
+        if(confirmations.pending){
+            parts.push((confirmations.pending == 1 ? '1 ' : `${confirmations.pending} `) + 'pending');
+        }
+        if(confirmations.confirmed){
+            parts.push((confirmations.confirmed == 1 ? '1 ' : `${confirmations.confirmed} `) + 'received');
+        }
+        if(confirmations.feedback){
+            parts.push((confirmations.feedback == 1 ? '1 correction' : `${confirmations.feedback} corrections`));
+        }
+        if(parts.length){
+            results.push(<li key={i++}><div><Link to={url} className={'text-warning alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual return confirmations: { parts.join(', ') } </Link></div></li>);
+        }
     }
     return results;
 }
