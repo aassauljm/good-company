@@ -36,19 +36,19 @@ CREATE TABLE public.ar_confirmation_request
   code text,
   feedback text,
   email text,
-  name text,
   "requestBy" text,
-  confirmed boolean  DEFAULT FALSE,
+  name text,
+  confirmed boolean DEFAULT false,
+  deleted boolean DEFAULT false,
   "createdAt" timestamp with time zone NOT NULL,
   "updatedAt" timestamp with time zone NOT NULL,
-  "userId" integer,
+  "arConfirmationId" integer,
   "personId" integer,
-  deleted boolean DEFAULT FALSE,
   CONSTRAINT ar_confirmation_request_pkey PRIMARY KEY (id),
+  CONSTRAINT "ar_confirmation_request_arConfirmationId_fkey" FOREIGN KEY ("arConfirmationId")
+      REFERENCES public.ar_confirmation (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE SET NULL,
   CONSTRAINT "ar_confirmation_request_personId_fkey" FOREIGN KEY ("personId")
       REFERENCES public.person (id) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE SET NULL,
-  CONSTRAINT "ar_confirmation_request_userId_fkey" FOREIGN KEY ("userId")
-      REFERENCES public.ar_confirmation (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE SET NULL
-);
+)
