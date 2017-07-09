@@ -1098,38 +1098,47 @@ module.exports = {
     createARConfirmation: function(req, res) {
         const values = {...actionUtil.parseValues(req), id: null, companyId: req.params.id};
         let companyName, company;
-        Company.findById(req.params.id)
-            .then((_company) => {
-                company  = _company;
-                return company.getNowCompanyState();
-            })
-            .then((state) => {
-                companyName = state.companyName;
-                return ARConfirmation.find({where: {companyId: req.params.id}, include: [{
-                    model: ARConfirmationRequest,
-                    as: 'arConfirmationRequests'
-                }]});
-            })
-            .then(existing => {
-                values.arConfirmationRequests.map(r => {
-                    r.code = uuid.v4()
-                });
-                if(existing){
-                    return existing.update(values)
-                        .then(() => {
-                            return ARConfirmationRequest.bulkCreate(values.arConfirmationRequests.map(a => {
-                                a.arConfirmationId = existing.id;
-                                return a;
-                            }));
-                        });
-                }
-                else{
-                    return ARConfirmation.create(values, {include: [{
+        return sequelize.transaction( () => {
+            return Company.findById(req.params.id)
+                .then((_company) => {
+                    company  = _company;
+                    return company.getNowCompanyState();
+                })
+                .then((state) => {
+                    companyName = state.companyName;
+                    return ARConfirmation.find({where: {companyId: req.params.id}, include: [{
                         model: ARConfirmationRequest,
                         as: 'arConfirmationRequests'
-                    }]})
-                }
+                    }]});
+                })
+                .then(existing => {
+                    values.arConfirmationRequests.map(r => {
+                        r.code = uuid.v4()
+                    });
+                    if(existing){
+                        return existing.update(values)
+                            .then(() => {
+                                return ARConfirmationRequest.bulkCreate(values.arConfirmationRequests.map(a => {
+                                    a.arConfirmationId = existing.id;
+                                    return a;
+                                }));
+                            });
+                    }
+                    else{
+                        return ARConfirmation.create(values, {include: [{
+                            model: ARConfirmationRequest,
+                            as: 'arConfirmationRequests'
+                        }]})
+                    }
+                })
+                .then(() => {
+                    // mail in transaction for now
+                    return Promise.map(value.arConfirmationRequests, (request) => {
+                        return EmailService.sendARConfirmationRequest(request, companyName, request.code, request.requestBy, req.user)
+                    })
+                })
             })
+
             .then(() => {
                 return ActivityLog.create({
                     type: ActivityLog.types.REQUEST_AR_CONFIRMATION,

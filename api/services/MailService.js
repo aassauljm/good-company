@@ -89,6 +89,14 @@ module.exports = {
                                            {name: user.username, successCount, totalCount, link: sails.config.APP_URL})
         }
     },
+    sendARConfirmationRequest: function(recipient, companyName, code, requestBy, sender){
+        return MailService.sendCataLexMail('emails.goodcompanies.request-ar-confirmation', recipient.email, 'Good Companies - Annual Return Confirmation',
+                                           {name: recipient.name, companyName, requestBy, link: `${sails.config.APP_URL}/ar_confirmation/${code}`, inviter: sender.name})
+    },
+    sendARConfirmationFeedback: function(recipient, companyName, companyId, feedbacker){
+        return MailService.sendCataLexMail('emails.goodcompanies.ar-feeback', recipient.email, 'Good Companies - Annual Return Feedback',
+                                           {name: recipient.name, companyName,  link: `${sails.config.APP_URL}/company/view/${companyId}/review_annual_return`, feedbacker.name})
+    },
     sendTemplate: function(recipients, file, filename, sender) {
         return MailService.massSendCataLexMailWithAttachment('emails.goodcompanies.attach-files', recipients, 'Document from Good Companies', file, filename, sender);
     }

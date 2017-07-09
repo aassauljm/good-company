@@ -27,6 +27,7 @@ module.exports = {
     updateARConfirmationFromCode: function(req, res) {
         let company, companyName, arc;
         const values = actionUtil.parseValues(req);
+        let newFeedback;
         return ARConfirmationRequest.find({
             where: {code: req.params.code},
             include: [{
@@ -35,12 +36,16 @@ module.exports = {
                 include: [{
                     model: Company,
                     as: 'company'
+                }, {
+                    model: User,
+                    as: 'user'
                 }]
             }]
         })
         .then((_arc) => {
             arc = _arc;
             company = arc.arConfirmation.company;
+            newFeedback = !arc.feedback && !!values.feedback;
             return arc.update({confirmed: values.confirmed, feedback: values.feedback})
         })
         .then(function(){
@@ -57,6 +62,12 @@ module.exports = {
                 description: description,
                 data: {companyId: company.id, externalUser: name}
             });
+        })
+        .then(() => {
+            if(newFeedback && (req.user || {}).id !== arc.arConfirmation.userId ){
+                return EmailService.sendARConfirmationFeedback({name: arc.arConfirmation.user.username,
+                    email: arc.arConfirmation.user.email}, companyName, company.id, arc);
+            }
         })
         .then((result) => {
             if(!result){
