@@ -94,7 +94,7 @@ module.exports = {
                                            {name: recipient.name, companyName, requestBy: requestBy || '', link: `${sails.config.APP_URL}/ar_confirmation/${code}`, inviter: sender.username})
     },
     sendARConfirmationFeedback: function(recipient, companyName, companyId, feedbacker){
-        return MailService.sendCataLexMail('emails.goodcompanies.ar-feeback', recipient.email, 'Good Companies - Annual Return Feedback',
+        return MailService.sendCataLexMail('emails.goodcompanies.ar-feedback', recipient.email, 'Good Companies - Annual Return Feedback',
                                            {name: recipient.name, companyName,  link: `${sails.config.APP_URL}/company/view/${companyId}/review_annual_return`, feedbacker: feedbacker.name})
     },
     sendTemplate: function(recipients, file, filename, sender) {
