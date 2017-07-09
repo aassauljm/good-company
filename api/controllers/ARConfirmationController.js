@@ -63,17 +63,17 @@ module.exports = {
                 data: {companyId: company.id, externalUser: name}
             });
         })
-        .then(() => {
-            if(newFeedback && (req.user || {}).id !== arc.arConfirmation.userId ){
-                return EmailService.sendARConfirmationFeedback({name: arc.arConfirmation.user.username,
-                    email: arc.arConfirmation.user.email}, companyName, company.id, arc);
-            }
-        })
         .then((result) => {
             if(!result){
                 return res.notFound();
             }
             return res.json({message: `Annual return ${values.feedback ? 'reedback' : 'confirmation'} for ${companyName} submitted`});
+        })
+        .then(() => {
+            if(newFeedback && (req.user || {}).id !== arc.arConfirmation.userId ){
+                return MailService.sendARConfirmationFeedback({name: arc.arConfirmation.user.username,
+                    email: arc.arConfirmation.user.email}, companyName, company.id, arc);
+            }
         })
     }
 

@@ -100,7 +100,9 @@ function stubs(){
     MailService.getTransport = function(){
         return nodemailer.createTransport(stubTransport());
     }
-
+    MailService.sendCataLexMail = function() {
+        return Promise.resolve({})
+    }
     CompanyInfoService.fetchNameHistory = function(companies) {
         const data = [{
             'ACUMEN CONSULTING LIMITED': {

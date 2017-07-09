@@ -1133,12 +1133,11 @@ module.exports = {
                 })
                 .then(() => {
                     // mail in transaction for now
-                    return Promise.map(value.arConfirmationRequests, (request) => {
-                        return EmailService.sendARConfirmationRequest(request, companyName, request.code, request.requestBy, req.user)
+                    return Promise.map(values.arConfirmationRequests, (request) => {
+                        return MailService.sendARConfirmationRequest(request, companyName, request.code, request.requestBy, req.user)
                     })
                 })
             })
-
             .then(() => {
                 return ActivityLog.create({
                     type: ActivityLog.types.REQUEST_AR_CONFIRMATION,
