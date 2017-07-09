@@ -14,7 +14,7 @@ CREATE SEQUENCE public.ar_confirmation_request_id_seq
 CREATE TABLE public.ar_confirmation
 (
   id integer NOT NULL DEFAULT nextval('ar_confirmation_id_seq'::regclass),
-  year integer
+  year integer,
   "arData" json,
   "createdAt" timestamp with time zone NOT NULL,
   "updatedAt" timestamp with time zone NOT NULL,
