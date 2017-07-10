@@ -14,7 +14,8 @@ module.exports = {
                     as: 'user',
                     attributes: ['username', 'email', 'id']
                 }]
-            }]
+            }],
+            order: [['name', 'ASC']]
         })
         .then((result) => {
             if(!result){
@@ -70,7 +71,7 @@ module.exports = {
             return res.json({message: `Annual return ${values.feedback ? 'reedback' : 'confirmation'} for ${companyName} submitted`});
         })
         .then(() => {
-            if(newFeedback && (req.user || {}).id !== arc.arConfirmation.userId ){
+            if(false && newFeedback && (req.user || {}).id !== arc.arConfirmation.userId ){
                 return MailService.sendARConfirmationFeedback({name: arc.arConfirmation.user.username,
                     email: arc.arConfirmation.user.email}, companyName, company.id, arc);
             }

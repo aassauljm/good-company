@@ -663,9 +663,9 @@ CREATE OR REPLACE FUNCTION ar_confirmations(companyId integer, year integer)
     AS $$
     SELECT row_to_json(q)
     FROM
-    (SELECT sum(CASE WHEN confirmed = TRUE AND feedback IS NULL THEN 1 ELSE 0 END) as confirmed,
+    (SELECT sum(CASE WHEN confirmed = TRUE THEN 1 ELSE 0 END) as confirmed,
         sum(CASE WHEN confirmed = FALSE AND feedback IS NULL THEN 1 ELSE 0 END) as  pending,
-        sum(CASE WHEN feedback IS NOT NULL THEN 1 ELSE 0 END) as feedback,
+        sum(CASE WHEN  confirmed = FALSE AND feedback IS NOT NULL THEN 1 ELSE 0 END) as feedback,
         count(acr) as total
         FROM ar_confirmation ac
         LEFT OUTER JOIN ar_confirmation_request acr on ac.id = acr."arConfirmationId"

@@ -497,6 +497,7 @@ export class AnnualReturnSubmitted extends React.PureComponent {
 
 @connect(undefined, {
     showARFeedback: (...args) => showARFeedback(...args),
+    updateARConfirmation: (...args) => updateResource(...args),
     revokeAR: (companyId, code) => deleteResource(`/company/${companyId}/ar_confirmation/${code}`, {confirmation: {
             title: 'Confirm Revocation',
             description: 'This will expire the link sent to this person, preventing them from viewing the annual return.',
@@ -509,6 +510,16 @@ export class AnnualReturnConfirmationStatus extends React.PureComponent {
         super(props);
         this.showFeedback = ::this.showFeedback;
         this.revoke = ::this.revoke;
+        this.confirm = ::this.confirm;
+        this.unConfirm = ::this.unConfirm;
+    }
+
+    confirm() {
+        this.props.updateARConfirmation(`/ar_confirmation/${this.props.arRequest.code}`, {confirmed: true})
+    }
+
+    unConfirm() {
+        this.props.updateARConfirmation(`/ar_confirmation/${this.props.arRequest.code}`, {confirmed: false})
     }
 
     showFeedback() {
@@ -536,25 +547,37 @@ export class AnnualReturnConfirmationStatus extends React.PureComponent {
             { this.props.arRequest.feedback && !this.props.arRequest.confirmed && <a href="#" className="vanity-link" onClick={this.showFeedback}>View</a>}
             { !this.props.arRequest.confirmed && !this.props.arRequest.feedback && <a href="#" className="vanity-link" onClick={this.revoke}>Revoke Invitation</a>}
             </td>
-
+            <td>
+            { this.props.arRequest.confirmed  && <a href="#" className="vanity-link" onClick={this.unConfirm}>Mark as Unconfirmed</a>}
+            { !this.props.arRequest.confirmed  && <a href="#" className="vanity-link" onClick={this.confirm}>Mark as Confirmed</a>}
+            </td>
         </tr>
     }
 }
 
-
+@connect(undefined, {
+    showARInvite: (args) => showARInvite(args)
+})
 @ARConfirmationsHOC()
 export class AnnualReturnConfirmations extends React.PureComponent {
-
+    constructor(props) {
+        super(props);
+        this.invite = ::this.invite;
+    }
+    invite() {
+        this.props.showARInvite({arData: this.props.arConfirmations.data.arData, companyId: this.props.companyId});
+    }
     render() {
         if(this.props.arConfirmations && this.props.arConfirmations.data){
             return <Widget title="Annual Return Confirmations">
+                <div className="table-responsive">
                 <table className="table table-striped">
                 <thead>
                 <tr>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Status</th>
-                    <th>Actions</th>
+                    <th colSpan="2">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -563,6 +586,10 @@ export class AnnualReturnConfirmations extends React.PureComponent {
                 }) }
                 </tbody>
                 </table>
+                </div>
+                <div className="button-row">
+                    <Button  bsStyle="info" onClick={this.invite} >Invite others to Review</Button>
+                </div>
             </Widget>
         }
         return false;

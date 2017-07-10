@@ -1,6 +1,6 @@
 var request = require("supertest");
 var Promise = require("bluebird");
-
+var moment = require('moment');
 
 describe('ARConfirmationController', function() {
     let arConfirmationRequests, companyId, authedReq;
@@ -32,7 +32,8 @@ describe('ARConfirmationController', function() {
                         {email: 'longerjohn@email.com', name: 'spanish grill'}
                     ],
                     arData: {
-
+                        companyFilingYear: (new Date()).getFullYear(),
+                        arFilingMonth: moment().format('MMMM')
                     },
                     year: (new Date()).getFullYear()
                 })
@@ -169,6 +170,44 @@ describe('ARConfirmationController', function() {
                     annualReturn.confirmations.feedback.should.be.equal(0);
                 })
         });
+
+        it('submits more requests', function() {
+            return authedReq
+                .post(`/api/company/${companyId}/ar_confirmation`)
+                .send({
+                    arConfirmationRequests: [
+                        {email: 'longerjohner@email.com', name: 'spanish grill plexus'},
+                        {email: 'longerjohnerier@email.com', name: 'spanish grill malloney'}
+                    ],
+                    arData: {
+                        companyFilingYear: (new Date()).getFullYear(),
+                        arFilingMonth: moment().format('MMMM')
+                    },
+                    year: (new Date()).getFullYear()
+                })
+                .expect(200)
+        });
+
+        it('gets codes', function() {
+            return authedReq
+                .get(`/api/company/${companyId}/ar_confirmation`)
+                .expect(200)
+                .then(response => {
+                    response.body.arConfirmationRequests.length.should.be.equal(4);
+                    arConfirmationRequests = response.body.arConfirmationRequests;
+                });
+        });
+
+        it('posts more feedback', function() {
+            const index = arConfirmationRequests.findIndex(ar => !ar.confirmed)
+            return req
+                .put(`/api/ar_confirmation/${arConfirmationRequests[index].code}`)
+                .send({
+                   feedback: 'it bad'
+                })
+                .expect(200)
+        });
+
     });
 
 });

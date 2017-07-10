@@ -37,7 +37,7 @@ export class CompaniesOfficeIntegrationWidget extends React.PureComponent {
         const hasCompaniesOfficeIntegration = this.props.userInfo.mbieServices.indexOf('companies-office') >= 0;
 
         return (
-            <Widget iconClass="fa fa-cogs" title="Companies Office Integration">
+            <Widget iconClass="fa fa-cogs" title="Companies Office">
                     { !hasCompaniesOfficeIntegration && <ConnectCompaniesOffice /> }
                     { hasCompaniesOfficeIntegration && !this.props.showDisconnect && <div>
                             <p>You have connected your RealMe account, allowing submission of company changes and annual returns.</p>

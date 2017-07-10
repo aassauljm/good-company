@@ -206,7 +206,7 @@ passport.updatePassport = function(query, user, profile, next){
                 })
                 .then(function () {
                     if(user.email !== profile.email || user.username !== profile.username){
-                        user.update({email: profile.email, username: profile.username})
+                        return user.update({email: profile.email, username: profile.username})
                             .then(function() {
                                 next(null, user);
                             })
