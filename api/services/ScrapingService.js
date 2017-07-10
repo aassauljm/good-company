@@ -1346,7 +1346,7 @@ const ScrapingService = {
     },
 
     cleanUpQuery: function(query) {
-        return Promise.resolve(query.replace(/ ltd\.?$/gi, ' LIMITED'))
+        return Promise.resolve(query.replace(/ ltd\.?$/gi, ' LIMITED').replace(/"/g, '').trim())
     },
 
     getSearchResults: function(query){
