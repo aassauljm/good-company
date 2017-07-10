@@ -26,7 +26,8 @@ function getUserNzbnToken(user) {
 
 function getAuthorisedCompanies(user) {
     let headers;
-
+    console.log('hi');
+    console.log(sails.config.mbie.nzbn.url + 'v3/nzbn/users')
     return getUserNzbnToken(user)
             .then(nzbnUserAccessToken => {
                 return MbieApiBearerTokenService.getToken()
@@ -39,7 +40,6 @@ function getAuthorisedCompanies(user) {
             .then(_headers => {
                 headers = _headers;
                 const url = sails.config.mbie.nzbn.url + 'v3/nzbn/users';
-
                 sails.log.info(`Requesting from MBIE ${url}  ${JSON.stringify(headers)}`);
 
                 return fetch(url, { headers: headers });
