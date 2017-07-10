@@ -1082,7 +1082,7 @@ module.exports = {
     },
 
     getARConfirmation: function(req, res) {
-        return ARConfirmation.find({where: {companyId: req.params.id}, include: [{
+        return ARConfirmation.find({where: {companyId: req.params.id, year: (new Date().getFullYear())}, include: [{
                     model: ARConfirmationRequest,
                     as: 'arConfirmationRequests',
                     where: {deleted: false}
