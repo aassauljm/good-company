@@ -88,8 +88,7 @@ describe('API Credential Controller', function() {
                     const expectedRedirectUrl = UtilService.buildUrl(`${sails.config.mbie.nzbn.oauth.url}authorize`, {
                         client_id: sails.config.mbie.nzbn.oauth.consumerKey,
                         redirect_uri: `${sails.config.APP_URL}/api/auth-with/nzbn`,
-                        response_type: 'code',
-                        scope: 'openid'
+                        response_type: 'code'
                     });
 
                     return response.headers.location.should.be.equal(expectedRedirectUrl);
