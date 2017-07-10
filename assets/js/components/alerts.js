@@ -107,7 +107,7 @@ export function alertListSummaries(props){
 
         if(counts['annualReturn-overdue'] && props.include.annualReturns){
             if(counts['annualReturn-overdue'].length > 1){
-                const url =  full ? `/company/view/${firstDeadlineCompanyId}/annual_returns?show_next=true` : `/annual_return_alerts`;
+                const url =  full ? `/company/view/${firstDeadlineCompanyId}/annual_returns?show_next=true` : `/annual_returns`;
                 orderedResults.push(<li key={'annualReturn-overdue-bulk'}>
                                     <Link  className="singular" to={url} className='text-danger alert-entry'>
                                     <Glyphicon glyph="warning-sign" className="big-icon"/>
@@ -118,7 +118,6 @@ export function alertListSummaries(props){
                 counts['annualReturn-overdue'].map((alert) => {
                     const dueDiff = moment.duration(-alert.deadlines.annualReturn.seconds, 'seconds').humanize(true);
                     const url = `/company/view/${alert.id}/annual_returns`;
-
                     orderedResults.push(<li  className={counts['annualReturn-overdue'].length > 1  ? "singular" : ""} key={orderedResults.length}>
                                         <div><Link to={url} className={'text-danger alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual return for { alert.companyName } is overdue ({dueDiff}).</Link></div></li>);
                 });
@@ -127,7 +126,7 @@ export function alertListSummaries(props){
 
         if(counts['annualReturn-dueThisMonth'] && props.include.annualReturns){
             if(counts['annualReturn-dueThisMonth'].length > 1){
-                const url = full ? `/company/view/${firstDeadlineCompanyId}/annual_returns?show_next=true` :  `/annual_return_alerts`;
+                const url = full ? `/company/view/${firstDeadlineCompanyId}/annual_returns?show_next=true` :  `/annual_returns`;
                 orderedResults.push(<li key={'annualReturn-dueThisMonth-bulk'}>
                                     <Link to={url} className='text-warning alert-entry'>
                                     <Glyphicon glyph="warning-sign" className="big-icon"/>

@@ -149,7 +149,7 @@ export default (store) => {
                     <Route path="annual_return" component={ AnnualReturnLoader } />
                 </Route>
                 <Route name="Notifications" path="alerts" component={ Alerts } />
-                <Route name="Annual Return Notifications" path="annual_return_alerts" component={ AnnualReturnAlerts } />
+                <Route name="Annual Returns" path="annual_returns" component={ AnnualReturnAlerts } />
                 <Route name="Share Register Notifications" path="share_register_alerts" component={ ShareRegisterAlerts } />
                 <Route name="Templates" path="templates" component={ TemplateSelectCompany } >
                     <Router path=":name" component={ TemplateSelectCompany }/>

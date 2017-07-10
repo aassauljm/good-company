@@ -38,14 +38,19 @@ export class CompaniesOfficeIntegrationWidget extends React.PureComponent {
 
         return (
             <Widget iconClass="fa fa-cogs" title="Companies Office">
-                    { !hasCompaniesOfficeIntegration && <ConnectCompaniesOffice /> }
+                    { !hasCompaniesOfficeIntegration && <ConnectCompaniesOffice >
+                              <Link className="btn btn-success" to="/annual_returns">Annual Returns</Link>
+                        </ConnectCompaniesOffice> }
                     { hasCompaniesOfficeIntegration && !this.props.showDisconnect && <div>
                             <p>You have connected your RealMe account, allowing submission of company changes and annual returns.</p>
                             <div className="button-row">
                             <Link to='/companies_office_integration' className="btn btn-info">Manage My Integration</Link>
+                               <Link className="btn btn-success" to="/annual_returns">Annual Returns</Link>
                                 </div>
                         </div> }
-                    { hasCompaniesOfficeIntegration && this.props.showDisconnect && <DisconnectCompaniesOffice disconnect={this.props.disconnectCompaniesOffice} /> }
+                    { hasCompaniesOfficeIntegration && this.props.showDisconnect && <DisconnectCompaniesOffice disconnect={this.props.disconnectCompaniesOffice}>
+                    <Link className="btn btn-success" to="/annual_returns">Annual Returns</Link>
+                    </DisconnectCompaniesOffice> }
             </Widget>
         );
     }
