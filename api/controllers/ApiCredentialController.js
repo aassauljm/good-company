@@ -53,7 +53,7 @@ function getAuthorisedCompanies(user) {
                 sails.log.verbose('MBIE user: ', JSON.stringify(users));
                 return users.users[0].userId;
             })
-            .then(userNzbnId => fetch(sails.config.mbie.nzbn.url + 'v3/nzbn/authorities?user-id=' + userNzbnId, { headers: headers }))
+            .then(userNzbnId => fetch(sails.config.mbie.nzbn.url + 'v3/nzbn/authorities?page-size=2000&user-id=' + userNzbnId, { headers: headers }))
             .then(response => response.text())
             .then(text => {
                 sails.log.verbose('Authority List: ', text);
