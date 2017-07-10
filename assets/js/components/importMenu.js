@@ -181,6 +181,7 @@ export const realMeActions = (dispatch) => ({
             }))
             .then(result => dispatch(requestUserInfo({ refresh: true })))
             .then(result => dispatch(addNotification({ message: 'Your RealMe® account has been disconnected from your Good Companies account' })))
+            .then(() => dispatch(push('/import')))
     }
 });
 

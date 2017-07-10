@@ -102,7 +102,10 @@ const authWithService = (config) => (req, res) => {
                 }
                 res.redirect(url);
             })
-            .catch(error => res.redirect(`/?error=${config.errorType}`));
+            .catch(error => {
+                sails.log.error(error);
+                res.redirect(`/?error=${config.errorType}`)
+            });
     }
     else if (req.query.error) {
         sails.log.error(req.query.error)
@@ -124,7 +127,7 @@ const authWithNzbn = (req, res) => {
     return authWithService({
         ...sails.config.mbie.nzbn,
         service: 'nzbn',
-        scope: { scope: 'openid' },
+        scope: { /*scope: 'openid'*/ },
         redirect: '/import/nzbn',
         errorType: 'FAIL_NZBN'
     })(req, res);
