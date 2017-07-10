@@ -39,6 +39,7 @@ import Account from './components/account';
 import AccessList from './components/accessList';
 import { CompanyFromRouteHOC, Injector } from './hoc/resources';
 import { Organisation } from './components/accessList';
+import { ChangeLogFull } from './components/changeLog';
 import CompaniesOfficeIntegration from './components/companiesOfficeIntegration';
 import ErrorPage from './components/error'
 
@@ -137,6 +138,7 @@ export default (store) => {
                 <Route name="Companies" path="companies" component={ Companies }  />
                 <Route name="Manage Companies" path="companies/manage" component={ CompaniesDelete  }  />
                 <Route name="Mass Setup" path="mass_setup" component={ MassSetup }  />
+                <Route name="Recent Changes" path="recent_changes" component={ ChangeLogFull }  />
                 <Route name="Import" path="import" component={ ImportMenu } />
                 <Route name="Import NZBN" path="import/nzbn" component={ ImportNZBN } />
                 <Route name="Import" path="import/:companyNumber" component={ ImportCompany } />

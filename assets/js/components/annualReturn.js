@@ -651,7 +651,7 @@ export class AnnualReturnConfirmationSummaryAndForm extends React.PureComponent 
             <div className="alert alert-success">
             <p>Hello { invitee }</p>
             <p><strong>{ inviter }</strong> has requested you review the annual return for <strong>{ this.props.arConfirmation.arData.companyName }</strong>.</p>
-            <p>If you are happy with the details, please select the click the <strong>Confirm Annual Return</strong> button, otherwise you can check the <strong>Requires Corrections</strong> checkbox and give feedback in the form below.</p>
+            <p>If you are happy with the details, please click the <strong>Confirm Annual Return</strong> button, otherwise check the <strong>Requires Corrections</strong> checkbox and give feedback.</p>
             </div>
              { submitted && <div className="alert alert-warning">
              <p><strong>{ inviter }</strong> has been notified of your { this.props.confirmed ? 'confirmation' : 'feedback' }, but you can still make further changes if you require.</p>
