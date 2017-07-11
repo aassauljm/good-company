@@ -65,85 +65,36 @@ export function alertList(props){
 export function alertListSummaries(props){
     const full = props.full;
     if(props.alerts.data){
-        let firstWarningCompanyId, firstDeadlineCompanyId, requiresSetup = 0;
         const orderedResults = [];
-        const counts = props.alerts.data.alertList.reduce((acc, alert) => {
-            let warningFound = false;
-            Object.keys(alert.warnings).reduce((acc, key) => {
-                if(alert.warnings[key]){
-                    if(!firstWarningCompanyId){
-                        firstWarningCompanyId = alert.id;
-                    }
-                    warningFound = true;
-                    acc[key] = acc[key] || []
-                    acc[key].push(alert);
-                }
-                return acc;
-            }, acc);
-            if(warningFound){
-                requiresSetup++;
-            }
-            Object.keys(alert.deadlines).reduce((acc, key) => {
-                if(alert.deadlines[key] && alert.deadlines[key].dueThisMonth){
-                    if(!firstDeadlineCompanyId){
-                        firstDeadlineCompanyId = alert.id;
-                    }
-                    const k = `${key}-dueThisMonth`;
-                    acc[k] = acc[k] || [];
-                    acc[k].push(alert)
-                }
-                else if(alert.deadlines[key] && alert.deadlines[key].overdue){
-                    if(!firstDeadlineCompanyId){
-                        firstDeadlineCompanyId = alert.id;
-                    }
-                    const k = `${key}-overdue`;
-                    acc[k] = acc[k] || []
-                    acc[k].push(alert)
-                }
-                return acc;
-            }, acc)
-            return acc;
-        }, {});
+        const { firstWarningCompanyId, firstDeadlineCompanyId, requiresSetup, counts } = props.alerts.data.groupedAlerts;
 
-        if(counts['annualReturn-overdue'] && props.include.annualReturns){
-            if(counts['annualReturn-overdue'].length > 1){
-                const url =  full ? `/company/view/${firstDeadlineCompanyId}/annual_returns?show_next=true` : `/annual_returns`;
-                orderedResults.push(<li key={'annualReturn-overdue-bulk'}>
-                                    <Link  className="singular" to={url} className='text-danger alert-entry'>
-                                    <Glyphicon glyph="warning-sign" className="big-icon"/>
-                                     { counts['annualReturn-overdue'].length } annual returns are overdue. { full ? 'Click here to step through.' : 'Click here to view.'}</Link>
-                                    </li>);
-            }
-            if(counts['annualReturn-overdue'].length && (props.full || counts['annualReturn-overdue'].length === 1)) {
-                counts['annualReturn-overdue'].map((alert) => {
-                    const dueDiff = moment.duration(-alert.deadlines.annualReturn.seconds, 'seconds').humanize(true);
-                    const url = `/company/view/${alert.id}/annual_returns`;
-                    orderedResults.push(<li  className={counts['annualReturn-overdue'].length > 1  ? "singular" : ""} key={orderedResults.length}>
-                                        <div><Link to={url} className={'text-danger alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual return for { alert.companyName } is overdue ({dueDiff}).</Link></div></li>);
-                });
-            }
-        }
 
-        if(counts['annualReturn-dueThisMonth'] && props.include.annualReturns){
-            if(counts['annualReturn-dueThisMonth'].length > 1){
-                const url = full ? `/company/view/${firstDeadlineCompanyId}/annual_returns?show_next=true` :  `/annual_returns`;
-                orderedResults.push(<li key={'annualReturn-dueThisMonth-bulk'}>
-                                    <Link to={url} className='text-warning alert-entry'>
-                                    <Glyphicon glyph="warning-sign" className="big-icon"/>
-                                     { counts['annualReturn-dueThisMonth'].length } annual returns are due this month. { full ? 'Click here to step through.' : 'Click here to view.'}</Link>
-                                    </li>);
+        [{key: 'overdue', title: 'overdue', string: (seconds) => `is over due (${moment.duration(-seconds, 'seconds').humanize(true)})`, style: 'danger'},
+            {key: 'dueThisMonth', title: 'due this month', string: () => 'due this month', style: 'warning'},
+            {key: 'dueNextMonth', title: 'due next month', string: () => 'due next month', style: 'success'},
+        ].map(type => {
+            const fullKey = `annualReturn-${type.key}`;
+            if(counts[fullKey] && props.include.annualReturns && props.include.annualReturns[type.key]){
+                if(counts[fullKey].length > 1){
+                    const url = full ? `/company/view/${firstDeadlineCompanyId}/annual_returns?show_next=true` :  `/annual_returns`;
+                    orderedResults.push(<li key={`${fullKey}-bulk`}>
+                                        <Link to={url} className={`text-${type.style} alert-entry`}>
+                                        <Glyphicon glyph="warning-sign" className="big-icon"/>
+                                         { counts[fullKey].length } annual returns are {type.title}. { full ? 'Click here to step through.' : 'Click here to view.'}</Link>
+                                        </li>);
+                }
+                if(counts[fullKey].length && (props.full || counts[fullKey].length === 1)) {
+                    const alert = counts[fullKey].map(alert => {
+                        const url = `/company/view/${alert.id}/annual_returns`;
+                        orderedResults.push(<li  className={counts[fullKey].length > 1 ? "singular" : ''} key={orderedResults.length}>
+                                            <div>
+                                            <Link to={url} className={`text-${type.style} alert-entry`}>
+                                            <Glyphicon glyph="warning-sign" className="big-icon"/>Annual return for { alert.companyName } is {type.string(alert.deadlines.annualReturn.seconds)}.</Link>
+                                            </div></li>);
+                    });
+                }
             }
-            if(counts['annualReturn-dueThisMonth'].length && (props.full || counts['annualReturn-dueThisMonth'].length === 1)) {
-                const alert = counts['annualReturn-dueThisMonth'].map(alert => {
-                    const url = `/company/view/${alert.id}/annual_returns`;
-                    orderedResults.push(<li  className={counts['annualReturn-dueThisMonth'].length > 1 ? "singular" : ''} key={orderedResults.length}>
-                                        <div>
-                                        <Link to={url} className={'text-warning alert-entry'}>
-                                        <Glyphicon glyph="warning-sign" className="big-icon"/>Annual return for { alert.companyName } is due this month.</Link>
-                                        </div></li>);
-                });
-            }
-        }
+        });
 
         if(counts['shareClassWarning'] && counts['shareClassWarning'].length > 1  && props.include.bulkSetup){
             orderedResults.push(<li key='bulk'>
@@ -171,6 +122,59 @@ export function alertListSummaries(props){
         }
 
         return orderedResults;
+    }
+}
+
+const COLLAPSE_LENGTH = 10;
+export class CollapsableAlertSegment extends React.PureComponent {
+    constructor(props){
+        super(props);
+        this.hideAll = ::this.hideAll;
+        this.showAll = ::this.showAll;
+        this.state = {long: props.list.length > COLLAPSE_LENGTH, hidden: props.list.length > COLLAPSE_LENGTH};
+    }
+
+
+    hideAll() {
+        this.setState({hidden: true})
+    }
+
+    showAll() {
+        this.setState({hidden: false})
+    }
+
+    render() {
+        return <ul>
+            { this.state.hidden ? this.props.list[0] : this.props.list }
+            { this.state.hidden && this.state.long && <li className="alert-toggle singular" onClick={this.showAll}><a href="#" className="alert-entry text-info">Show All</a></li> }
+            { !this.state.hidden && this.state.long && <li className="alert-toggle singular" onClick={this.hideAll}><a href="#" className="alert-entry text-info">Hide All</a></li> }
+        </ul>
+    }
+}
+
+export class CollapsableAlertSegments extends React.PureComponent {
+    render() {
+        const possibleIncludes = {
+            annualReturns: {'overdue': true, 'dueThisMonth': true, 'dueNextMonth': true},
+            bulkSetup: true,
+            guidedSetup: true
+        }
+        return <li>
+            { Object.keys(possibleIncludes).map((key) => {
+                if(this.props.include[key]){
+                    if(this.props.include[key] === true){
+                        return  <CollapsableAlertSegment key={key} list={ this.props.listCreator({...this.props, include: {[key]: true}}) } />
+                    }
+                    else{
+                        return Object.keys(possibleIncludes[key]).map(subKey => {
+                            if(this.props.include[key][subKey]){
+                                  return  <CollapsableAlertSegment key={`${key}-${subKey}`} list={ this.props.listCreator({...this.props, include: {[key]: {[subKey]: true}}}) } />
+                            }
+                        }).filter(f => f)
+                    }
+                }
+            }).filter(f => f) }
+        </li>
     }
 }
 
@@ -223,16 +227,17 @@ export class AlertsWidget extends React.PureComponent {
         this._unmounted = true;
     }
 
-    handleClick(activity) {
-        if(activity.data.companyId){
-
-        }
+    renderCollapsableParts() {
+        return <CollapsableAlertSegments alerts={this.props.alerts} include={this.props.include} listCreator={this.props.listCreator} full={true}/>
     }
 
     renderAlerts() {
         if(this.props.alerts.data){
+            if(this.props.listCreator && this.props.full){
+                return this.renderCollapsableParts();
+            }
             if(this.props.listCreator){
-                return this.props.listCreator(this.props)
+                return this.props.listCreator(this.props);
             }
             const {danger, warnings} = alertList(this.props);
             const results = [...danger, ...warnings]
@@ -278,7 +283,7 @@ export class AlertsWidget extends React.PureComponent {
 
 export const AlertsSummaryWidget = (props) => {
     return <AlertsWidget {...props} listCreator={alertListSummaries} include={{
-        annualReturns: true,
+        annualReturns: {'overdue': true, 'dueThisMonth': true},
         bulkSetup: true,
         guidedSetup: true
     }}/>
@@ -288,7 +293,7 @@ export const AlertsSummaryWidget = (props) => {
 export const AnnualReturnAlerts = (props) => {
     return <LawBrowserContainer>
                 <AlertsWidget className="alerts-full" title="Annual Return Notifications"  include={{
-        annualReturns: true
+        annualReturns: {'overdue': true, 'dueThisMonth': true}
     }} full={true} link={false} listCreator={alertListSummaries} />
         </LawBrowserContainer>
 };
@@ -304,7 +309,7 @@ export const ShareRegisterAlerts = (props) => {
 const Alerts = (props) => {
     return <LawBrowserContainer>
                 <AlertsWidget className="alerts-full" full={true} link={false} listCreator={alertListSummaries} include={{
-        annualReturns: true,
+        annualReturns: {'overdue': true, 'dueThisMonth': true, 'dueNextMonth': true},
         bulkSetup: true,
         guidedSetup: true
     }}/>

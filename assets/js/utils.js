@@ -499,9 +499,6 @@ export function formatString(formatted) {
 
 export function sortAlerts(response) {
     const data = (response || [])
-    /*data.sort((a, b) => {
-        return ((a.deadlines || {}).overdue ? 1 : -1) - ((b.deadlines || {}).overdue ? 1 : -1)
-    });*/
     const companyMap = (data || []).reduce((acc, entry) => {
         acc[entry.id] = entry;
         return acc;
@@ -522,7 +519,7 @@ export function sortAlerts(response) {
             acc[due] = acc[due] || [];
             acc[due].push({id: entry.id, companyName: entry.companyName, transaction: transaction})
 
-            if(transaction.subTransactions[0].data.noticeDate){
+            if(transaction.subTransactions && transaction.subTransactions[0].data.noticeDate){
                 const noticeDue = moment(transaction.subTransactions[0].data.noticeDate).format('YYYY-MM-DD');
                 acc[noticeDue] = acc[noticeDue] || [];
                 acc[noticeDue].push({id: entry.id, companyName: entry.companyName, noticeDate: true, transaction: transaction})
@@ -531,7 +528,41 @@ export function sortAlerts(response) {
 
         return acc;
     }, {});
-    return {alertList: data, companyMap, dateMap}
+
+    let firstWarningCompanyId, firstDeadlineCompanyId, requiresSetup = 0;
+    const counts = data.reduce((acc, alert) => {
+        let warningFound = false;
+        Object.keys(alert.warnings).reduce((acc, key) => {
+            if(alert.warnings[key]){
+                if(!firstWarningCompanyId){
+                    firstWarningCompanyId = alert.id;
+                }
+                warningFound = true;
+                acc[key] = acc[key] || []
+                acc[key].push(alert);
+            }
+            return acc;
+        }, acc);
+        if(warningFound){
+            requiresSetup++;
+        }
+        Object.keys(alert.deadlines).reduce((acc, key) => {
+            ['dueThisMonth', 'dueNextMonth', 'overdue'].map(type => {
+                if(alert.deadlines[key] && alert.deadlines[key][type]){
+                    if(!firstDeadlineCompanyId){
+                        firstDeadlineCompanyId = alert.id;
+                    }
+                    const k = `${key}-${type}`;
+                    acc[k] = acc[k] || [];
+                    acc[k].push(alert)
+                }
+            })
+            return acc;
+        }, acc)
+        return acc;
+    }, {});
+
+    return {alertList: data, companyMap, dateMap, groupedAlerts: {firstWarningCompanyId, firstDeadlineCompanyId, requiresSetup, counts}}
 }
 
 export const processEvents = (events) => {
