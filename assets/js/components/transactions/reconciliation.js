@@ -527,6 +527,7 @@ export class ImportHistoryTransactionView extends React.PureComponent {
 
     handleEdit(actionSet, pendingActions, editIndex) {
         pendingActions = collectActions(this.state.pendingHistory.data || []);
+        debugger;
         this.props.destroyForm('amend');
         this.props.show('editTransaction', {...this.props.transactionViewData,
             startId: pendingActions[0].id,

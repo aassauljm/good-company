@@ -42,8 +42,9 @@ module.exports = {
                 if(d.totalShares === 0 && (allocationsUp === 1 || allocationsDown === 1)){
                     // totalShares = zero SHOULD mean transfers.
 
-                    d.actions.map(a => {
+                    d.actions.filter(a => !a.transactionMethod).map(a => {
                         a.transactionMethod = a.transactionType;
+
                         if(a.transactionType === Transaction.types.NEW_ALLOCATION){
                             a.inferredType = true;
                             a.transactionType = Transaction.types.TRANSFER_TO;
