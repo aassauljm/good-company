@@ -285,7 +285,7 @@ module.exports = {
 
         // first, split unknown amount holding transfers up into separate sets
         docs = docs.reduce((acc, doc) => {
-            const holdingTransfers = (doc.actions || []).filter(action => action.transactionType === Transaction.types.HOLDING_TRANSFER && action.unknownAmount);
+            const holdingTransfers = (doc.actions || []).filter(action => action.transactionType === Transaction.types.HOLDING_TRANSFER && (action.unknownAmount || action.forceSplit));
             if(holdingTransfers.length > 1){
                 // keep the first in there, move the others out
                 const actionsToRemove = holdingTransfers.splice(1);

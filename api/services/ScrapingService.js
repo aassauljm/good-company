@@ -1028,7 +1028,6 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                         let difference = result.beforeHolders.length !== result.afterHolders.length
                             // must a holder change or holding transfer
                             // if SAME NAME, different address in same position, then its an UPDATE_HOLDER
-
                         if(!difference){
 
                             result.beforeHolders.map((holder, i) => {
@@ -1048,6 +1047,7 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                         }
                         if(difference){
                             result.transactionType =  Transaction.types.HOLDING_TRANSFER;
+                            result.forceSplit = true;
                             return [result];
                         }
                     }

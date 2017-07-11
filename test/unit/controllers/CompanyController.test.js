@@ -1752,6 +1752,41 @@ describe('Company Controller', function() {
     });
 
 
+   describe('Import with old style particulars (1905877)', function(){
+        var req, companyId, context, classes, holdings;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+        it('Does a stubbed import', function(done){
+            return req.post('/api/company/import/companiesoffice/1905877')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                })
+                .catch(done);
+        });
+        it('Gets pending history', function(done){
+            req.get('/api/company/'+companyId+'/pending_history')
+                .expect(200)
+                .then(function(res){
+                    res.body.map(action => {
+                        if(action.data.documentId == '6448207'){
+                            console.log(JSON.stringify(action, null, 4));
+                        }
+                    })
+                    done();
+                });
+        });
+        it('Imports history', function(done){
+            return req.post('/api/company/'+companyId+'/import_pending_history')
+                .expect(200)
+                .then((res) => {
+                    done();
+                });
+        });
+    });
 
 
 
