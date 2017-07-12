@@ -1,6 +1,6 @@
 "use strict";
 import Promise from 'bluebird';
-import { logout, showConfirmation } from './actions';
+import { logout, showConfirmation, showIsLoggedOut } from './actions';
 import { push } from 'react-router-redux';
 
 Promise.config({
@@ -123,16 +123,6 @@ export function callAPIMiddleware({
                     type: successType
                 })))
                 .catch(error => {
-                    /*if(error.response && error.response.status === 403){
-                        if()
-                            dispatch(logout());
-                            // out redirect or something
-                            const state = getState();
-                            if(state.routing.locationBeforeTransitions.pathname !== '/login'){
-                                dispatch(push({pathname: '/login', query: {next: state.routing.locationBeforeTransitions.pathname}}))
-                            }
-                        return;
-                    }*/
                     if(error.response && error.response.status === 503){
                         !USER_WARNED && setTimeout(() => alert('Good Companies is currently undergoing maintenance.  Please try again in a few moments.'), 0);
                         USER_WARNED = true;
@@ -143,12 +133,16 @@ export function callAPIMiddleware({
                     if(error.response){
                         return parse(error.response)
                         .then(response => {
-                               dispatch(Object.assign({}, payload, {
-                            response: response,
-                            error: true,
-                            type: failureType}));
-                            throw new Error((response || {}).message);
-                        })
+                            if(error.response.status === 403 && response.isAuthenticated === false){
+                                dispatch(logout());
+                                dispatch(showIsLoggedOut());
+                            }
+                           dispatch(Object.assign({}, payload, {
+                                response: response,
+                                error: true,
+                                type: failureType}));
+                                throw new Error((response || {}).message);
+                            })
                     }
                     dispatch(Object.assign({}, payload, {
                         error: error,

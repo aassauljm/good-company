@@ -25,7 +25,8 @@ module.exports.session = {
 
 
    cookie: {
-     maxAge: 24 * 60 * 60 * 1000
+     //maxAge: 24 * 60 * 60 * 1000
+     maxAge: 10000
    },
 
    adapter: 'redis',

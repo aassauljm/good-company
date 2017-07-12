@@ -104,7 +104,7 @@ export default class EmailDocument extends React.Component {
 
     render() {
         return (
-            <Modal show={true} onHide={this.close}>
+            <Modal show={true} onHide={this.close}  backdrop="static">
                 <Modal.Header closeButton>
                     <Modal.Title>Email Document</Modal.Title>
                 </Modal.Header>

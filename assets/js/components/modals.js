@@ -7,6 +7,7 @@ import { endConfirmation, hideVersionWarning, hideBillingIssue } from '../action
 import { LoadingOverlay } from './loading';
 import EmailDocument from './modals/emailDocument';
 import PreviewDocument from './modals/previewDocument';
+import IsLoggedOut from './modals/isLoggedOut';
 
 
 
@@ -132,6 +133,9 @@ export default class Modals extends React.Component {
         }
         else if (this.props.modals.previewDocument && this.props.modals.previewDocument.showing) {
             return <PreviewDocument {...this.props.modals.previewDocument } />
+        }
+        else if (this.props.modals.isLoggedOut && this.props.modals.isLoggedOut.showing) {
+            return <IsLoggedOut {...this.props.modals.isLoggedOut } />
         }
         return false;
     }

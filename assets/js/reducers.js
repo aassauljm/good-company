@@ -32,7 +32,8 @@ import {
     SEND_DOCUMENT_REQUEST, SEND_DOCUMENT_SUCCESS, SEND_DOCUMENT_FAILURE,
     SHOW_VERSION_WARNING, HIDE_VERSION_WARNING,
     SHOW_BILLING_ISSUE, HIDE_BILLING_ISSUE,
-    SHOW_PREVIEW_DOCUMENT, HIDE_PREVIEW_DOCUMENT
+    SHOW_PREVIEW_DOCUMENT, HIDE_PREVIEW_DOCUMENT,
+    SHOW_IS_LOGGED_OUT, HIDE_IS_LOGGED_OUT
      } from './actionTypes';
 
 import {
@@ -484,6 +485,11 @@ function modals(state = {}, action) {
             return {...state, billingIssue: {...action.data, showing: true}}
         case HIDE_BILLING_ISSUE:
             return {...state, billingIssue: {showing: false}}
+        case SHOW_IS_LOGGED_OUT:
+            return {...state, isLoggedOut: {...action.data, showing: true}}
+        case HIDE_IS_LOGGED_OUT:
+            return {...state, isLoggedout: {showing: false}}
+
         case RESOURCE_REQUEST:
         case RESOURCE_CREATE_REQUEST:
         case RESOURCE_UPDATE_REQUEST:
