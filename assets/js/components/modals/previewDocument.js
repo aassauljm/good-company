@@ -7,9 +7,9 @@ import STRINGS from '../../strings';
 import { reduxForm } from 'redux-form';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { addNotification , hidePreviewDocument, renderTemplate, showLoading, endLoading } from '../../actions';
-import { connect } from 'react-redux';
 import PDF from 'react-pdf-component/lib/react-pdf';
 import PDFJS from 'pdfjs-dist'
+import { connect } from 'react-redux';
 import Loading from '../loading';
 import { saveAs } from 'file-saver';
 import Raven from 'raven-js';
@@ -25,7 +25,7 @@ PDFJS.PDFJS.workerSrc = '/js/pdf.worker.min.js';
     endLoading: () => endLoading(),
     addNotification: (...args) => addNotification(...args)
 })
-export default class PreviewDocument extends React.Component {
+export class PreviewDocument extends React.PureComponent {
     constructor(props) {
         super(props);
         this.close = ::this.close;
@@ -73,6 +73,7 @@ export default class PreviewDocument extends React.Component {
     }
 
     render() {
+        //const PDF = this.props.PDF;
         return (
             <Modal show={true} bsSize="large" onHide={this.close} className="preview" backdrop="static">
                 <Modal.Header closeButton>
@@ -92,4 +93,26 @@ export default class PreviewDocument extends React.Component {
         return false;
     }
 
+}
+
+
+export class PreviewDocumentLoader extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.state = {};
+    }
+    componentWillMount(){
+       // Promise.all([
+                  //  import(/* webpackChunkName: "react-pdf" */ 'react-pdf!react-pdf-component/lib/react-pdf')
+                 //   import(/* webpackChunkName: "pdfjs" */ 'pdfjs-dist')
+              //      ])
+        /*.spread((PDF, PDFJS) => {
+            this.setState({loaded: true, PDF, PDFJS})
+        });*/
+    }
+    render() {
+        if(this.state.loaded){
+            return <PreviewDocument {...this.props} {...this.state}/>
+        }
+    }
 }

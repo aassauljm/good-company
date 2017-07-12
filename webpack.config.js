@@ -23,7 +23,6 @@ var plugins = [
         // extract inline css into separate 'styles.css'
         new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en-nz/),
         new ExtractTextPlugin('../css/[name].[hash].css'),
-        new webpack.optimize.DedupePlugin(),
         new CopyWebpackPlugin([
                 { from: '*.*', to: '../'  },
                 { from: 'images/*.*',  to: '../'},
@@ -40,9 +39,10 @@ plugins.push(function() {
 })
 if(!DEV){
     plugins.push(new webpack.optimize.UglifyJsPlugin({
-            compress: {
-              warnings: false
-            }
+        sourceMap: true,
+        compress: {
+          warnings: false
+        }
     }));
 }
 else{
@@ -74,7 +74,7 @@ module.exports = {
         extensions: ['', '.js']
       },
     module: {
-        loaders: [
+        rules: [
         {
             test: /\.js$/,
             //exclude: /node_modules/,
@@ -86,36 +86,49 @@ module.exports = {
                 path.resolve(__dirname, "cluster.js"),
                 path.resolve(__dirname, "node_modules/react-shuffle")
             ],
-            loader: "babel"
-        }, /*, {
-            test: /(\.jsx|\.js)$/,
-            loader: "eslint-loader",
-            exclude: /node_modules/
-        }, */
+            loader: "babel-loader"
+        },
         {
             test: /\.(scss|css)$/,
-            loader: ExtractTextPlugin.extract(
-                // activate source maps via loader query
-                'css?sourceMap!' +
-                'postcss-loader?sourceMap!' +
-                'sass?sourceMap'
-            )
-        }, {
+            use: ExtractTextPlugin.extract({use: [
+                {
+                    loader: 'css-loader',
+                    options: {
+                        importLoaders: true,
+                        sourceMap: true
+                    }
+                },
+                {
+                    loader: 'postcss-loader',
+                    options: {
+                        sourceMap: true,
+                        plugins: [
+                            autoprefixer
+                        ]
+                    }
+                },
+                {
+                    loader: 'sass-loader',
+                    options: {
+                        sourceMap: true
+                    }
+                }
+            ]})
+        },
+        {
             test: /\.gif$/,
-            loader: "url-loader?mimetype=image/gif"
-        }, {
-            test: /\.json$/,
-            loader: "json-loader"
+            use: [{ loader: "url-loader", options: {mimetype: "image/gif"}}]
         }, {
             test: /\.(png|jpg)$/,
-            loader: 'url-loader?limit=28000&name=../images/[name].[ext]'
-            //loader: "file?name=../images/[name].[ext]"
+            use: [{loader: "url-loader", options: {"limit": 28000, "name": "../images/[name].[ext]"}}]
         }, {
             test: /\.(svg|woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
-            loader: DEV ? "file?name=../css/[name].[ext]" : "file?name=../css/[name].[ext]"
+            use: [{loader: "file-loader", options: {name: "../css/[name].[ext]"}}]
         }
         ],
     },
-    postcss: [autoprefixer({browsers: ['> 0.01%', 'ie 8-10']})],
+    resolve: {
+        extensions: [".js", ".json"]
+    },
     plugins: plugins
 }

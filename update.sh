@@ -13,5 +13,5 @@ rm serviceIsLive.flag
 pm2 stop gc.prod.config.json
 node scripts/migrate.js config/env/production.js
 rm .tmp/public/*/*
-NODE_ENV=production webpack
+NODE_ENV=production node_modules/.bin/webpack
 pm2 start gc.prod.config.json --env production

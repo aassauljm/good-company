@@ -14,19 +14,18 @@ module.exports = function(grunt) {
             progress: false,
         },
         "build-dev": {
-            stats: {
-                // Configure the console output
-                colors: true,
+            //stats: {
+            //    // Configure the console output
+          //     colors: true,
                 //modules: true,
                 //reasons: true
-            },
-            progress: false,
-            failOnError: false,
+           // },
+            //progress: false,
+           // failOnError: false,
             watch: true, // use webpacks watcher
             // You need to keep the grunt process alive
 
-            keepalive: true, // don't finish the grunt task
-            debug: true
+            //keepalive: true, // don't finish the grunt task
         }
     });
 
