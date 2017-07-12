@@ -30,7 +30,6 @@ class DateConfirmationForm extends React.Component {
         const getError = (index) => {
             return this.props.error && this.props.error.actions && this.props.error.actions[index];
         }
-
         return <form onSubmit={this.props.handleSubmit}>
                     <hr/>
             { actions.map((field, i) => {
@@ -57,15 +56,15 @@ class DateConfirmationForm extends React.Component {
 
             <div className="button-row">
                 <Button onClick={this.props.cancel} bsStyle="default">Cancel</Button>
-             <Button onClick={this.props.resetForm}>Reset</Button>
+                <Button onClick={this.props.resetForm}>Reset</Button>
+                <Button bsStyle='warning' onClick={this.props.onSkip}>Skip Transaction</Button>
                 <Button type="submit" bsStyle="primary" disabled={!this.props.valid }>Submit</Button>
             </div>
         </form>
     }
 }
 const dateConfirmationFields = [
-    'actions[].effectiveDate',
-    'actions[].userSkip'
+    'actions[].effectiveDate'
 ];
 
 const DateConfirmationFormConnected = reduxForm({
@@ -104,6 +103,13 @@ export function DateConfirmation(props){
         })
     }
 
+    function skip(){
+        return submit({
+            newActions: [{id: context.actionSet.id, data: {...context.actionSet.data, actions: context.actionSet.data.actions.map(a => ({...a, userSkip: true}))}, previous_id: context.actionSet.previous_id}]
+        })
+    }
+
+
     let initialValues = {actions: actions.map((a, i) => {
         // if all same direction, set amount;
         const effectiveDate = moment(a.effectiveDate || actionSet.data.effectiveDate).startOf('day').toDate();
@@ -112,13 +118,14 @@ export function DateConfirmation(props){
 
     return <div>
             <DateConfirmationFormConnected
-            amendActions={actions }
+            amendActions={actions}
             actionSet={actionSet.data}
             effectiveDate={moment(actionSet.data.effectiveDate).startOf('day').toDate()}
             cancel={props.cancel}
             companyState={companyState}
             shareClassMap={shareClassMap}
             onSubmit={handleSubmit}
+            onSkip={skip}
             initialValues={initialValues} />
         </div>
 }
