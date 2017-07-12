@@ -113,7 +113,7 @@ export default (store) => {
             const { login: { loggedIn, loginUrl }} = store.getState();
             if (!loggedIn) {
                 const query = encodeURIComponent(nextState.location.pathname);
-                window.location.href = `${loginUrl}?next=${nextState.location.pathname}`
+                window.location.href = `${loginUrl}?next=${query}`
                 cb();
             }
             else{
@@ -125,7 +125,7 @@ export default (store) => {
 
 
     return <Route name="Home" path="/" component={ App }>
-        <Route onEnter={ requireLogin } component={ LoggedInApp }>
+        <Route onChange={requireLogin} onEnter={requireLogin} component={ LoggedInApp }>
             <Route component={ LandingPageView }>
                 <IndexRoute component={ Home }  />
                 <Route name="Recent Activity" path="recent_activity" component={ RecentActivity }  />

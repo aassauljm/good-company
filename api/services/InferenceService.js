@@ -42,8 +42,9 @@ module.exports = {
                 if(d.totalShares === 0 && (allocationsUp === 1 || allocationsDown === 1)){
                     // totalShares = zero SHOULD mean transfers.
 
-                    d.actions.map(a => {
+                    d.actions.filter(a => !a.transactionMethod).map(a => {
                         a.transactionMethod = a.transactionType;
+
                         if(a.transactionType === Transaction.types.NEW_ALLOCATION){
                             a.inferredType = true;
                             a.transactionType = Transaction.types.TRANSFER_TO;
@@ -284,7 +285,7 @@ module.exports = {
 
         // first, split unknown amount holding transfers up into separate sets
         docs = docs.reduce((acc, doc) => {
-            const holdingTransfers = (doc.actions || []).filter(action => action.transactionType === Transaction.types.HOLDING_TRANSFER && action.unknownAmount);
+            const holdingTransfers = (doc.actions || []).filter(action => action.transactionType === Transaction.types.HOLDING_TRANSFER && (action.unknownAmount || action.forceSplit));
             if(holdingTransfers.length > 1){
                 // keep the first in there, move the others out
                 const actionsToRemove = holdingTransfers.splice(1);

@@ -39,7 +39,8 @@ import {
     SHOW_BILLING_ISSUE, HIDE_BILLING_ISSUE,
     SHOW_PREVIEW_DOCUMENT, HIDE_PREVIEW_DOCUMENT,
     SHOW_AR_INVITE, HIDE_AR_INVITE,
-    SHOW_AR_FEEDBACK, HIDE_AR_FEEDBACK
+    SHOW_AR_FEEDBACK, HIDE_AR_FEEDBACK,
+    SHOW_IS_LOGGED_OUT, HIDE_IS_LOGGED_OUT
      } from './actionTypes';
 
 const serialize = function(obj) {
@@ -93,35 +94,9 @@ export function resetResources(){
     return {type: RESOURCE_RESET}
 }
 
-
-/*export function requestLogin(credentials) {
-    return {
-        types: [LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE],
-        callAPI: () => fetch('/auth/local', {
-            method: 'POST',
-            headers: json_headers,
-            credentials: 'same-origin',
-            body: JSON.stringify(credentials)
-        })
-    };
-}*/
-
 export function logout() {
     return {type: LOGOUT}
 }
-/*
-export function setPassword(data) {
-    return {
-        types: [SET_PASSWORD_REQUEST, SET_PASSWORD_SUCCESS, SET_PASSWORD_FAILURE],
-        callAPI: () => fetch('/api/set_password', {
-            method: 'PUT',
-            headers: json_headers,
-            credentials: 'same-origin',
-            body: JSON.stringify(data)
-        })
-    };
-}
-*/
 
 
 export function requestUserInfo(options = {}) {
@@ -617,4 +592,12 @@ export function showPreviewDocument(data) {
 
 export function hidePreviewDocument() {
     return { type: HIDE_PREVIEW_DOCUMENT };
+}
+
+export function showIsLoggedOut(data) {
+    return { type: SHOW_IS_LOGGED_OUT, data };
+}
+
+export function hideIsLoggedOut() {
+    return { type: HIDE_IS_LOGGED_OUT };
 }

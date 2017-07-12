@@ -9,6 +9,7 @@ import EmailDocument from './modals/emailDocument';
 import PreviewDocument from './modals/previewDocument';
 import AnnualReturnInvite from './modals/annualReturnInvite';
 import ARFeedback from './modals/arFeedback';
+import IsLoggedOut from './modals/isLoggedOut';
 
 
 
@@ -140,6 +141,9 @@ export default class Modals extends React.Component {
         }
         else if (this.props.modals.arFeedback && this.props.modals.arFeedback.showing) {
             return <ARFeedback {...this.props.modals.arFeedback } />
+        }
+        else if (this.props.modals.isLoggedOut && this.props.modals.isLoggedOut.showing) {
+            return <IsLoggedOut {...this.props.modals.isLoggedOut } />
         }
         return false;
     }

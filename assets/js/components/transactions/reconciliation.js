@@ -303,7 +303,8 @@ function isEditable(data){
         [TransactionTypes.ACQUISITION_FROM]: true,
         [TransactionTypes.CANCELLATION_FROM]: true,
         [TransactionTypes.CONSOLIDATION_FROM]: true,
-        [TransactionTypes.UPDATE_DIRECTOR]: true
+        [TransactionTypes.NEW_DIRECTOR]: true,
+        [TransactionTypes.REMOVE_DIRECTOR]: true
     };
     return actions.some(a => editableTypes[a.transactionType]);
 }

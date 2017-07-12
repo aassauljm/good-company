@@ -74,7 +74,7 @@ export default class PreviewDocument extends React.Component {
 
     render() {
         return (
-            <Modal show={true} bsSize="large" onHide={this.close} className="preview">
+            <Modal show={true} bsSize="large" onHide={this.close} className="preview" backdrop="static">
                 <Modal.Header closeButton>
                     <Modal.Title>Preview Document</Modal.Title>
                 </Modal.Header>

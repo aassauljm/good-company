@@ -36,7 +36,7 @@ module.exports = function forbidden (data, options) {
 
   // If the user-agent wants JSON, always respond with JSON
   if (req.wantsJSON) {
-    return res.jsonx(data || {message: 'Forbidden'});
+    return res.jsonx({message: 'Forbidden', isAuthenticated: !!(req.session.authenticated && req.isAuthenticated())});
   }
 
   // If second argument is a string, we take that to mean it refers to a view.
