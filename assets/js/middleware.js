@@ -133,7 +133,8 @@ export function callAPIMiddleware({
                     if(error.response){
                         return parse(error.response)
                         .then(response => {
-                            if(error.response.status === 403 && response.isAuthenticated === false){
+                            const isLoggedIn =  getState().login.loggedIn;
+                            if(error.response.status === 403 && response.isAuthenticated === false && isLoggedIn){
                                 dispatch(logout());
                                 dispatch(showIsLoggedOut());
                             }
