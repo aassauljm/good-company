@@ -69,7 +69,7 @@ export function alertListSummaries(props){
         const { firstWarningCompanyId, firstDeadlineCompanyId, requiresSetup, counts } = props.alerts.data.groupedAlerts;
 
         [{key: 'feedback', title: 'have feedback to review', string: (seconds) => 'has feedback to review', style: 'info', glyph: <Glyphicon glyph="comment" className="big-icon"/>},
-            {key: 'overdue', title: 'are overdue', string: (seconds) => `is over due (${moment.duration(-seconds, 'seconds').humanize(true)})`, style: 'danger', glyph: <Glyphicon glyph="warning-sign" className="big-icon"/>},
+            {key: 'overdue', title: 'are overdue', string: (seconds) => `is overdue (${moment.duration(-seconds, 'seconds').humanize(true)})`, style: 'danger', glyph: <Glyphicon glyph="warning-sign" className="big-icon"/>},
             {key: 'dueThisMonth', title: 'are due this month', string: () => 'is due this month', style: 'warning', glyph : <Glyphicon glyph="warning-sign" className="big-icon"/>},
             {key: 'dueNextMonth', title: 'are due next month', string: () => 'is due next month', style: 'success', glyph: <Glyphicon glyph="time" className="big-icon"/>},
         ].map(type => {

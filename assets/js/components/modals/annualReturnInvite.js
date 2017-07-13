@@ -66,19 +66,27 @@ export default class AnnualReturnConfirmationInvite extends React.PureComponent 
         const year = this.props.renderData.arData.companyFilingYear;
         const month = this.props.renderData.arData.arFilingMonth;
         const format = 'YYYY-MM-DD'
-        const firstDayOfNextMonth = moment().year(year).month(month).day(1).endOf('month').startOf('day').add(1, 'day').format(format)
+        const firstDayOfNextMonth = moment().year(year).month(month).day(1).endOf('month').startOf('day').add(1, 'day');
+        const firstDayOfNextMonthStr = firstDayOfNextMonth.format(format);
 
+        // As soon as possible if overdue
         return this.props.requestWorkingDayOffset({
                 scheme: 'companies',
-                start_date: firstDayOfNextMonth,
+                start_date: firstDayOfNextMonthStr,
                 amount: 1,
                 direction: 'negative',
                 inclusion: 0,
                 units: 'working_days'
             })
             .then((result) => {
+                if(moment(result.response.result, 'YYYY-MM-DD').isBefore(new Date())){
+                    throw Error();
+                }
                 this.props.fields.date.onChange(moment(result.response.result, 'YYYY-MM-DD').format('D MMMM YYYY'));
             })
+            .catch(() => {
+                 this.props.fields.date.onChange('As soon as possible');
+            });
     }
 
     close() {
@@ -86,8 +94,6 @@ export default class AnnualReturnConfirmationInvite extends React.PureComponent 
     }
 
     render() {
-
-
         return (
             <Modal show={true} onHide={this.close}  backdrop="static">
                 <Modal.Header closeButton>
@@ -98,7 +104,7 @@ export default class AnnualReturnConfirmationInvite extends React.PureComponent 
                     <p>They will receive a link to view and confirm the accuracy of the document, and if necessary, provide feedback for you to evaulate.</p>
                     <p></p>
                     <EmailListForm initialValues={{recipients: [{}]}} ref="form" onSubmit={this.send} />
-                    <Input type="text" {...this.props.fields.date} label="Request a response by" help="Defaults to last working day of the due month"/>
+                    <Input type="text" {...this.props.fields.date} label="Request a response by" help="Defaults to last working day of the due month, if earlier than today"/>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button bsStyle='default' onClick={this.close}>Cancel</Button>
