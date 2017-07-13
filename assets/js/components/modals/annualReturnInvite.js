@@ -14,7 +14,7 @@ import Input from '../forms/input';
 */
 
 
-@connect(state => ({transactionViews: state.transactionViews || DEFAULT_OBJ, sendDocument: state.sendDocument}),
+@connect(state => ({transactionViews: state.transactionViews || DEFAULT_OBJ}),
 {
     hide: () => hideARInvite(),
     invite: (...args) => createResource(...args),
@@ -33,9 +33,10 @@ export default class AnnualReturnConfirmationInvite extends React.PureComponent 
     }
 
     send(values) {
-        if(this.props.sendDocument._status === 'fetching'){
+        if(this._submitting){
             return;
         }
+        this._submitting = true;
         const data = {
             year: this.props.renderData.arData.companyFilingYear,
             arData: this.props.renderData.arData,
@@ -43,7 +44,7 @@ export default class AnnualReturnConfirmationInvite extends React.PureComponent 
                 return {...r, requestBy: this.props.fields.date.value}
             })
         }
-        const url = `/company/${this.props.renderData.companyId}/ar_confirmation`
+        const url = `/company/${this.props.renderData.companyId}/ar_confirmation`;
         this.props.invite(url, data)
             .then(() => {
                 this.props.addNotification({
@@ -55,6 +56,9 @@ export default class AnnualReturnConfirmationInvite extends React.PureComponent 
                     message: 'Failed to send review invitations',
                     error: true
                 });
+            })
+            .then(() => {
+                this._submitting = false;
             });
     }
 

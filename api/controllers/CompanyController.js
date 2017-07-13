@@ -1085,8 +1085,13 @@ module.exports = {
         return ARConfirmation.find({where: {companyId: req.params.id, year: (new Date().getFullYear())}, include: [{
                     model: ARConfirmationRequest,
                     as: 'arConfirmationRequests',
-                    where: {deleted: false}
-                }]})
+                    where: {deleted: false},
+                }],
+                order: [
+                    [{model: ARConfirmationRequest, as: 'arConfirmationRequests'}, 'name', 'ASC'],
+                    [{model: ARConfirmationRequest, as: 'arConfirmationRequests'}, 'id', 'ASC']
+                ]
+            })
             .then((result) => {
                 return res.json(result);
             })
