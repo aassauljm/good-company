@@ -100,7 +100,7 @@ export default {
 
         TRANSFER_TO_REISSUE: 'Transfer To',
         TRANSFER_FROM_REISSUE: 'Transfer From',
-
+        AR_FILING_CHANGE: 'Annual Return Filing Month Change',
 
         CONVERSION_TO: 'Conversion To',
         CONVERSION: 'Conversion/Subdivision',

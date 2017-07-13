@@ -20,7 +20,8 @@ const DOCUMENT_TYPES = {
     ADDRESS_CHANGE: 'ADDRESS_CHANGE',
     INCORPORATION: 'INCORPORATION',
     PARTICULARS_OF_DIRECTOR: 'PARTICULARS_OF_DIRECTOR',
-    UNKNOWN: 'UNKNOWN',
+    AR_FILING_CHANGE: 'AR_FILING_CHANGE',
+    UNKNOWN: 'UNKNOWN'
 };
 
 function checkStatus(response) {
@@ -629,7 +630,28 @@ const EXTRACT_DOCUMENT_MAP = {
         result.unknownAmount = true;
         result.effectiveDate = result.registrationDate;
         return {actions: [result], effectiveDate: result.effectiveDate }
-    }
+    },
+    [DOCUMENT_TYPES.AR_FILING_CHANGE]: ($) => {
+       const script = $('script').filter(function() { return $(this).text().match(/\$\("div\[id=previousARMonth\]"\)/) }).text();
+       const oldMonth = script.match(/\$\("div\[id=previousARMonth\]"\)\.append\(\$\.fmitFormat\.monthName\(\"(\d+)/)[1];
+       const newMonth = script.match(/\$\("div\[id=updatedARMonth\]"\)\.append\(\$\.fmitFormat\.monthName\(\"(\d+)/)[1];
+       const effectiveDate = moment($('.row.wideLabel label').filter(function(){
+                        return $(this).text().match(/Registration Date and Time/);
+                    })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm:ss').toDate();
+        try{
+            return {actions: [{
+                    transactionType: Transaction.types.AR_FILING_CHANGE,
+                    previousARFilingMonth: moment(oldMonth, 'MM').format('MMMM'),
+                    newARFilingMonth: moment(newMonth, 'MM').format('MMMM'),
+                    effectiveDate
+                }],
+                effectiveDate,
+                transactionType: Transaction.types.AR_FILING_CHANGE
+            }
+        }catch(e){
+            return {}
+        }
+    },
 }
 
 function nextUntil(node, has) {
@@ -1214,6 +1236,9 @@ const DOCUMENT_TYPE_MAP = {
     },
     'Notice Of Issue Of Shares': {
         type: DOCUMENT_TYPES.ISSUE
+    },
+    'Change in Annual Return Filing Month': {
+        type: DOCUMENT_TYPES.AR_FILING_CHANGE
     }
 };
 

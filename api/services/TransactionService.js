@@ -281,8 +281,6 @@ export const performInverseConsolidation = performInverseDecreaseShares;
 export const performInverseAcquisition = performInverseDecreaseShares;
 export const performInverseCancellation = performInverseDecreaseShares;
 
-
-
 export const performIssue = performIncreaseShares;
 export const performConversion= performIncreaseShares;
 
@@ -925,6 +923,16 @@ export function performInverseDetailsChange(data, companyState, previousState, e
     return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}));
 };
 
+
+export function performARFilingChange(data, companyState, previousState, effectiveDate){
+    companyState.set('arFilingMonth', data.newARFilingMonth);
+    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}));
+};
+
+export function performInverseARFilingChange(data, companyState, previousState, effectiveDate){
+    companyState.set('arFilingMonth', data.previousARFilingMonth);
+    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}));
+};
 
 
 export function performInverseNewDirector(data, companyState, previousState, effectiveDate){
@@ -1578,6 +1586,7 @@ export function performInverseTransaction(data, company, rootState){
         [Transaction.types.ADDRESS_CHANGE]: TransactionService.performInverseAddressChange,
         [Transaction.types.USER_FIELDS_CHANGE]: TransactionService.performInverseDetailsChange,
         [Transaction.types.DETAILS]: TransactionService.performInverseDetailsChange,
+        [Transaction.types.AR_FILING_CHANGE]: TransactionService.performInverseARFilingCHange,
         [Transaction.types.NEW_DIRECTOR]: TransactionService.performInverseNewDirector,
         [Transaction.types.REMOVE_DIRECTOR]: TransactionService.performInverseRemoveDirector,
         [Transaction.types.UPDATE_DIRECTOR]: TransactionService.performInverseUpdateDirector,
@@ -1968,6 +1977,7 @@ export function performTransaction(data, company, companyState, resultingTransac
         [Transaction.types.AMEND]:                  TransactionService.performAmend,
         [Transaction.types.NAME_CHANGE]:            TransactionService.performNameChange,
         [Transaction.types.DETAILS]:                TransactionService.performDetailsChange,
+        [Transaction.types.AR_FILING_CHANGE]:       TransactionService.performARFilingChange,
         [Transaction.types.USER_FIELDS_CHANGE]:     TransactionService.performDetailsChange,
         [Transaction.types.ADDRESS_CHANGE]:         TransactionService.performAddressChange,
         [Transaction.types.HOLDING_CHANGE]:         TransactionService.performHoldingChange,
@@ -2024,7 +2034,7 @@ export function performTransaction(data, company, companyState, resultingTransac
                     });
                 }
                 return arr;
-            }, [])
+            }, []);
 
         })
         .then(function(transactions){

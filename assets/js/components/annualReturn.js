@@ -719,6 +719,7 @@ export default class AnnualReturn extends React.PureComponent {
         const due = arDue(this.props.companyState.deadlines);
         return <div>
             <LawBrowserContainer lawLinks={ARLinks()}>
+        <AnnualReturnConfirmations companyId={this.props.companyId}/>
             <Widget className="ar-info" title="Annual Return">
 
                 { !due && <div className="alert alert-warning">According to our records, the annual return for this company is not yet due.</div> }
@@ -735,7 +736,6 @@ export default class AnnualReturn extends React.PureComponent {
                     <UpdateSourceData companyId={this.props.companyId} />
                 </ConnectCompaniesOffice> }
             </Widget>
-        <AnnualReturnConfirmations companyId={this.props.companyId}/>
         </LawBrowserContainer>
         <ShowNext {...this.props} />
         </div>

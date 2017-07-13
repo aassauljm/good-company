@@ -1003,6 +1003,46 @@ describe('Company Controller', function() {
             })
         });
 
+
+        describe('Test futures again with catalex (5311842)', function(){
+            var path;
+            it('Checks for updates', function(done){
+                path =  ScrapingService._testPath ;
+                ScrapingService._testPath = 'test/fixtures/companies_office/futures/3/';
+                return req
+                    .put('/api/company/'+companyId+'/update_source_data')
+                    .expect(200)
+                    .then((res) => {
+                        done();
+                    })
+            });
+
+            it('Gets warnings', function(done){
+                return req.get('/api/company/'+companyId+'/get_info')
+                    .expect(200)
+                    .then(function(res){
+                        res.body.currentCompanyState.warnings.pendingFuture.should.be.equal(true);
+                        done();
+                    })
+                    .catch(done)
+            });
+
+            it('Counts pending future', function(done){
+                return req.get('/api/company/'+companyId+'/pending_future')
+                    .expect(200)
+                    .then(function(res){
+                       res.body.length.should.be.equal(1);
+                        done();
+                    })
+                    .catch(done)
+            });
+
+            after(() => {
+                ScrapingService._testPath = path;
+            })
+        })
+
+
         describe('Test history again (5311842)', function(){
 
             it('reset history', function(done){

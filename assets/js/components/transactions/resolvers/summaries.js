@@ -117,6 +117,27 @@ export function nameChange(context) {
         </div>
 }
 
+
+export function arFilingChange(context) {
+    return <div className="row row-separated">
+                <div className="col-md-5">
+                <h5>Previous Annual Return Filing Month</h5>
+                { context.action.previousARFilingMonth }
+            </div>
+            <div className="col-md-2">
+                <div className="text-center">
+                    <Glyphicon glyph="arrow-right" className="big-arrow" />
+                    <h5>Effective as at {stringDateToFormattedStringTime(context.action.effectiveDate)}</h5>
+                </div>
+            </div>
+            <div className="col-md-5">
+                <h5>New Annual Return Filing Month</h5>
+                 { context.action.newARFilingMonth }
+            </div>
+        </div>
+}
+
+
 export function holderChange(context) {
     return <div className="row row-separated">
                 <div className="col-md-5">

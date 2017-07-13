@@ -11,7 +11,7 @@ import { Link } from 'react-router';
 import { deleteResource, addNotification } from '../actions'
 import { enums as TransactionTypes } from '../../../config/enums/transactions';
 import { actionAmountDirection } from './transactions/resolvers/summaries';
-import { companiesOfficeDocumentUrl, holderChange, directorChange, beforeAndAfterSummary, holdingChangeSummary, addressChange, nameChange, addRemoveDirector } from './transactions/resolvers/summaries';
+import { companiesOfficeDocumentUrl, holderChange, directorChange, beforeAndAfterSummary, holdingChangeSummary, addressChange, nameChange, addRemoveDirector, arFilingChange } from './transactions/resolvers/summaries';
 import { push } from 'react-router-redux'
 import { ARSummary } from './annualReturn'
 import TEMPLATABLE from './templates/templatable';
@@ -292,6 +292,9 @@ export const TransactionRenderMap = {
     [TransactionTypes.TRANSFER_FROM]: ShareHoldingChange,
     [TransactionTypes.HOLDING_CHANGE]: (props) => {
         return props.subTransactions ? BasicLoop(props) : holdingChangeSummary({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}}, props.companyState, true)
+    },
+    [TransactionTypes.AR_FILING_CHANGE]: (props) => {
+        return props.subTransactions ? BasicLoop(props) : arFilingChange({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}}, props.companyState, true)
     }
 }
 
