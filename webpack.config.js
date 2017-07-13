@@ -27,10 +27,7 @@ var plugins = [
                 { from: '*.*', to: '../'  },
                 { from: 'images/*.*',  to: '../'},
                 { from: '../node_modules/pdfjs-dist/build/pdf.worker.min.js', to: './'}
-        ]),
-         new webpack.optimize.CommonsChunkPlugin({
-           name: 'common' // Specify the common bundle's name.
-         })
+        ])
     ];
 
 plugins.push(function() {

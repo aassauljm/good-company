@@ -146,8 +146,8 @@ export class CollapsableAlertSegment extends React.PureComponent {
     render() {
         return <ul>
             { this.state.hidden ? this.props.list[0] : this.props.list }
-            { this.state.hidden && this.state.long && <li className="alert-toggle singular" onClick={this.showAll}><a href="#" className="alert-entry text-info">Show All</a></li> }
-            { !this.state.hidden && this.state.long && <li className="alert-toggle singular" onClick={this.hideAll}><a href="#" className="alert-entry text-info">Hide All</a></li> }
+            { this.state.hidden && this.state.long && <li className="alert-toggle singular" ><a href="#" className="alert-control" onClick={this.showAll}><i className="fa fa-chevron-down"/>Show All</a></li> }
+            { !this.state.hidden && this.state.long && <li className="alert-toggle singular" ><a href="#" className="alert-control " onClick={this.hideAll}><i className="fa fa-chevron-up"/>Hide All</a></li> }
         </ul>
     }
 }

@@ -38,6 +38,15 @@
                 display:none;
             }
         }
+        .alert-control{
+            line-height: 24px;
+            height: 24px;
+            color: $state-info-text;
+            .fa{
+                padding-right: 11px;
+            }
+        }
+
         .alert-entry:before{
             content: '●';
             padding-right: 16px;
