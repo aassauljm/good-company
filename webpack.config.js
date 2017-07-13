@@ -27,7 +27,10 @@ var plugins = [
                 { from: '*.*', to: '../'  },
                 { from: 'images/*.*',  to: '../'},
                 { from: '../node_modules/pdfjs-dist/build/pdf.worker.min.js', to: './'}
-        ])
+        ]),
+         new webpack.optimize.CommonsChunkPlugin({
+           name: 'common' // Specify the common bundle's name.
+         })
     ];
 
 plugins.push(function() {
@@ -40,9 +43,18 @@ plugins.push(function() {
 if(!DEV){
     plugins.push(new webpack.optimize.UglifyJsPlugin({
         sourceMap: true,
-        compress: {
-          warnings: false
-        }
+          beautify: false,
+          mangle: {
+            screw_ie8: true
+          },
+          compress: {
+            screw_ie8: true
+          },
+          comments: false
+    }));
+    plugins.push(new webpack.LoaderOptionsPlugin({
+      minimize: true,
+      debug: false
     }));
 }
 else{
