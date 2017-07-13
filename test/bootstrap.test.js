@@ -17,8 +17,6 @@ events.EventEmitter.prototype._maxListeners = 40;
 Error.stackTraceLimit = Infinity;
 var Utils = require("../assets/js/utils");
 var _fetch = require('isomorphic-fetch');
-var nodemailer = require('nodemailer');
-var stubTransport = require('nodemailer-stub-transport');
 var LawBrowserContainer = require('../assets/js/components/lawBrowserContainer');
 
 var sails;
@@ -97,9 +95,6 @@ function stubs(){
     }
 
 
-    MailService.getTransport = function(){
-        return nodemailer.createTransport(stubTransport());
-    }
     MailService.sendCataLexMail = function() {
         return Promise.resolve({})
     }
