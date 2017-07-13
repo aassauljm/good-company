@@ -67,12 +67,12 @@ module.exports = {
         path: __dirname + "/.tmp/public/js"
     },
     devtool: 'source-map',
-      resolve: {
+    resolve: {
         alias: {
           'react': path.join(__dirname, 'node_modules', 'react')
         },
         extensions: ['', '.js']
-      },
+    },
     module: {
         rules: [
         {

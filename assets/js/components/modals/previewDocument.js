@@ -25,7 +25,7 @@ PDFJS.PDFJS.workerSrc = '/js/pdf.worker.min.js';
     endLoading: () => endLoading(),
     addNotification: (...args) => addNotification(...args)
 })
-export class PreviewDocument extends React.PureComponent {
+export default class PreviewDocument extends React.PureComponent {
     constructor(props) {
         super(props);
         this.close = ::this.close;
@@ -73,7 +73,6 @@ export class PreviewDocument extends React.PureComponent {
     }
 
     render() {
-        //const PDF = this.props.PDF;
         return (
             <Modal show={true} bsSize="large" onHide={this.close} className="preview" backdrop="static">
                 <Modal.Header closeButton>
@@ -93,26 +92,4 @@ export class PreviewDocument extends React.PureComponent {
         return false;
     }
 
-}
-
-
-export class PreviewDocumentLoader extends React.PureComponent {
-    constructor(props) {
-        super(props);
-        this.state = {};
-    }
-    componentWillMount(){
-       // Promise.all([
-                  //  import(/* webpackChunkName: "react-pdf" */ 'react-pdf!react-pdf-component/lib/react-pdf')
-                 //   import(/* webpackChunkName: "pdfjs" */ 'pdfjs-dist')
-              //      ])
-        /*.spread((PDF, PDFJS) => {
-            this.setState({loaded: true, PDF, PDFJS})
-        });*/
-    }
-    render() {
-        if(this.state.loaded){
-            return <PreviewDocument {...this.props} {...this.state}/>
-        }
-    }
 }

@@ -121,7 +121,7 @@
     "proxyquire": "^1.7.3",
     "raven-js": "^3.10.0",
     "rc": "^1.2.1",
-    "react": "15.5.4",
+    "react": "15.6.1",
     "react-addons-shallow-compare": "^15.0.0",
     "react-autosuggest": "^9.0.0",
     "react-bootstrap": "^0.31.0",
