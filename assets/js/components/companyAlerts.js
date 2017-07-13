@@ -169,7 +169,7 @@ export function renderDeadlines(deadlines, showTypes, companyId) {
             parts.push((confirmations.feedback == 1 ? '1 correction' : `${confirmations.feedback} corrections`));
         }
         if(parts.length){
-            results.push(<li key={i++}><div><Link to={url} className={'text-warning alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual return confirmations: { parts.join(', ') } </Link></div></li>);
+            results.push(<li key={i++}><div><Link to={url} className={'text-info alert-entry'}><Glyphicon glyph="comment" className="big-icon"/>Annual return confirmations: { parts.join(', ') } </Link></div></li>);
         }
     }
     return results;
