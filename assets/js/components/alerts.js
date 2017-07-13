@@ -68,10 +68,10 @@ export function alertListSummaries(props){
         const orderedResults = [];
         const { firstWarningCompanyId, firstDeadlineCompanyId, requiresSetup, counts } = props.alerts.data.groupedAlerts;
 
-
-        [{key: 'overdue', title: 'overdue', string: (seconds) => `is over due (${moment.duration(-seconds, 'seconds').humanize(true)})`, style: 'danger'},
-            {key: 'dueThisMonth', title: 'due this month', string: () => 'due this month', style: 'warning'},
-            {key: 'dueNextMonth', title: 'due next month', string: () => 'due next month', style: 'success'},
+        [{key: 'feedback', title: 'have feedback to review', string: (seconds) => 'has feedback to review', style: 'info', glyph: <Glyphicon glyph="comment" className="big-icon"/>},
+            {key: 'overdue', title: 'are overdue', string: (seconds) => `is over due (${moment.duration(-seconds, 'seconds').humanize(true)})`, style: 'danger', glyph: <Glyphicon glyph="warning-sign" className="big-icon"/>},
+            {key: 'dueThisMonth', title: 'are due this month', string: () => 'is due this month', style: 'warning', glyph : <Glyphicon glyph="warning-sign" className="big-icon"/>},
+            {key: 'dueNextMonth', title: 'are due next month', string: () => 'is due next month', style: 'success', glyph: <Glyphicon glyph="time" className="big-icon"/>},
         ].map(type => {
             const fullKey = `annualReturn-${type.key}`;
             if(counts[fullKey] && props.include.annualReturns && props.include.annualReturns[type.key]){
@@ -79,8 +79,8 @@ export function alertListSummaries(props){
                     const url = full ? `/company/view/${firstDeadlineCompanyId}/annual_returns?show_next=true` :  `/annual_returns`;
                     orderedResults.push(<li key={`${fullKey}-bulk`}>
                                         <Link to={url} className={`text-${type.style} alert-entry`}>
-                                        <Glyphicon glyph="warning-sign" className="big-icon"/>
-                                         { counts[fullKey].length } annual returns are {type.title}. { full ? 'Click here to step through.' : 'Click here to view.'}</Link>
+                                        { type.glyph }
+                                         { counts[fullKey].length } annual returns {type.title}. { full ? 'Click here to step through.' : 'Click here to view.'}</Link>
                                         </li>);
                 }
                 if(counts[fullKey].length && (props.full || counts[fullKey].length === 1)) {
@@ -89,7 +89,8 @@ export function alertListSummaries(props){
                         orderedResults.push(<li  className={counts[fullKey].length > 1 ? "singular" : ''} key={orderedResults.length}>
                                             <div>
                                             <Link to={url} className={`text-${type.style} alert-entry`}>
-                                            <Glyphicon glyph="warning-sign" className="big-icon"/>Annual return for { alert.companyName } is {type.string(alert.deadlines.annualReturn.seconds)}.</Link>
+                                            { type.glyph }
+                                            Annual return for { alert.companyName } {type.string(alert.deadlines.annualReturn.seconds)}.</Link>
                                             </div></li>);
                     });
                 }
@@ -155,7 +156,7 @@ export class CollapsableAlertSegment extends React.PureComponent {
 export class CollapsableAlertSegments extends React.PureComponent {
     render() {
         const possibleIncludes = {
-            annualReturns: {'overdue': true, 'dueThisMonth': true, 'dueNextMonth': true},
+            annualReturns: {'feedback': true, 'overdue': true, 'dueThisMonth': true, 'dueNextMonth': true},
             bulkSetup: true,
             guidedSetup: true
         }
@@ -283,7 +284,7 @@ export class AlertsWidget extends React.PureComponent {
 
 export const AlertsSummaryWidget = (props) => {
     return <AlertsWidget {...props} listCreator={alertListSummaries} include={{
-        annualReturns: {'overdue': true, 'dueThisMonth': true},
+        annualReturns: {'feedback': true, 'overdue': true, 'dueThisMonth': true},
         bulkSetup: true,
         guidedSetup: true
     }}/>
@@ -293,7 +294,7 @@ export const AlertsSummaryWidget = (props) => {
 export const AnnualReturnAlerts = (props) => {
     return <LawBrowserContainer>
                 <AlertsWidget className="alerts-full" title="Annual Return Notifications"  include={{
-        annualReturns: {'overdue': true, 'dueThisMonth': true}
+        annualReturns: {'feedback': true, 'overdue': true, 'dueThisMonth': true, 'dueNextMonth': true}
     }} full={true} link={false} listCreator={alertListSummaries} />
         </LawBrowserContainer>
 };
@@ -309,7 +310,7 @@ export const ShareRegisterAlerts = (props) => {
 const Alerts = (props) => {
     return <LawBrowserContainer>
                 <AlertsWidget className="alerts-full" full={true} link={false} listCreator={alertListSummaries} include={{
-        annualReturns: {'overdue': true, 'dueThisMonth': true, 'dueNextMonth': true},
+        annualReturns: {'feedback': true, 'overdue': true, 'dueThisMonth': true, 'dueNextMonth': true},
         bulkSetup: true,
         guidedSetup: true
     }}/>

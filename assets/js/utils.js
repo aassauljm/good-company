@@ -556,7 +556,14 @@ export function sortAlerts(response) {
                     acc[k] = acc[k] || [];
                     acc[k].push(alert)
                 }
-            })
+            });
+            if(alert.deadlines[key] && alert.deadlines[key].confirmations){
+                if(alert.deadlines[key].confirmations.feedback){
+                    const k = `${key}-feedback`;
+                    acc[k] = acc[k] || [];
+                    acc[k].push(alert)
+                }
+            }
             return acc;
         }, acc)
         return acc;
