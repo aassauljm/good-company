@@ -104,8 +104,6 @@
     "lusca": "^1.3.0",
     "moment": "^2.10.6",
     "moment-timezone": "^0.5.9",
-    "nodemailer": "^2.4.2",
-    "nodemailer-stub-transport": "^1.0.0",
     "passport": "^0.3.0",
     "passport-http": "^0.3.0",
     "passport-local": "^1.0.0",

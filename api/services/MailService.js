@@ -1,4 +1,3 @@
-import nodemailer from 'nodemailer';
 import Promise from 'bluebird';
 import fetch from "isomorphic-fetch";
 import FormData from 'form-data';
@@ -10,27 +9,6 @@ import fs from 'fs'
 let _transport;
 
 module.exports = {
-    getTransport: function() {
-        if(!_transport){
-            _transport = nodemailer.createTransport(sails.config.mail);
-        }
-        return _transport;
-    },
-    sendMail: function(destination, body) {
-        const transport = Promise.promisifyAll(MailService.getTransport());
-        return transport.sendMail({
-            from: sails.config.mail.from,
-            to: destination,
-            html: body
-        })
-        .then(info => {
-            sails.log.error(info.response.toString())
-        })
-        .catch(e => {
-            sails.log.error(e);
-        })
-
-    },
     sendCataLexMail: function(template, email, subject, data) {
         sails.log.info(`Sending Mail: ${email} ${subject} ${template} ${JSON.stringify(data)}`);
         var form = new FormData();

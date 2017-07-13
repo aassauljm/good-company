@@ -1,4 +1,3 @@
-import nodemailer from 'nodemailer';
 import Promise from 'bluebird';
 import fetch from "isomorphic-fetch";
 import FormData from 'form-data';
