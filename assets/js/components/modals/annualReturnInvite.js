@@ -104,7 +104,7 @@ export default class AnnualReturnConfirmationInvite extends React.PureComponent 
                     <p>They will receive a link to view and confirm the accuracy of the document, and if necessary, provide feedback for you to evaulate.</p>
                     <p></p>
                     <EmailListForm initialValues={{recipients: [{}]}} ref="form" onSubmit={this.send} />
-                    <Input type="text" {...this.props.fields.date} label="Request a response by" help="Defaults to last working day of the due month, if earlier than today"/>
+                    <Input type="text" {...this.props.fields.date} label="Request a response by" help="Defaults to last working day of the due month, if not earlier than today"/>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button bsStyle='default' onClick={this.close}>Cancel</Button>
