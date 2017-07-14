@@ -6,20 +6,26 @@ import Input from '../forms/input';
 import STRINGS from '../../strings';
 import { reduxForm } from 'redux-form';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-import { hideARFeedback } from '../../actions';
+import { hideARFeedback, updateResource } from '../../actions';
 import { connect } from 'react-redux';
-
 @connect(undefined,
 {
-    hide: () => hideARFeedback()
+    hide: () => hideARFeedback(),
+    updateARConfirmation: (...args) => updateResource(...args)
 })
 export default class ARFeedback extends React.Component {
     constructor(props) {
         super(props);
+        this.confirm = ::this.confirm;
         this.close = ::this.close;
         if(typeof document !== 'undefined'){
             this.quill = require('react-quill');
         }
+    }
+
+    confirm() {
+        this.props.updateARConfirmation(`/ar_confirmation/${this.props.renderData.code}`, {confirmed: true});
+        this.props.hide();
     }
 
     close() {
@@ -38,6 +44,7 @@ export default class ARFeedback extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button bsStyle='default' onClick={this.close}>Close</Button>
+                    <Button bsStyle='primary' onClick={this.confirm}>Mark as Confirmed</Button>
                 </Modal.Footer>
             </Modal>
         );

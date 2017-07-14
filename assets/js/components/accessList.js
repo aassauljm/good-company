@@ -91,7 +91,7 @@ export class AccessListWidget extends React.PureComponent {
     renderAccessList() {
         if(this.props.foreignPermissions && this.props.foreignPermissions.data){
             return this.props.foreignPermissions.data.map((perm, i) => {
-                return <div key={i}><div className="col-xs-6">{ perm.name }</div><RenderPermissionType perm={perm} className="col-xs-6"/></div>
+                return <div key={i} className="row"><div className="col-xs-6">{ perm.name }</div><RenderPermissionType perm={perm} className="col-xs-6"/></div>
             })
         }
         else{

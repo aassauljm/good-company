@@ -494,7 +494,6 @@ export class AnnualReturnSubmitted extends React.PureComponent {
 }
 
 
-
 @connect(undefined, {
     showARFeedback: (...args) => showARFeedback(...args),
     updateARConfirmation: (...args) => updateResource(...args),
@@ -544,7 +543,7 @@ export class AnnualReturnConfirmationStatus extends React.PureComponent {
             { !this.props.arRequest.confirmed && !this.props.arRequest.feedback && <strong className="text-warning">Pending</strong>}
             </td>
             <td>
-            { this.props.arRequest.feedback && !this.props.arRequest.confirmed && <a href="#" className="vanity-link" onClick={this.showFeedback}>View</a>}
+            { this.props.arRequest.feedback && <a href="#" className="vanity-link" onClick={this.showFeedback}>View Feedback</a>}
             { !this.props.arRequest.confirmed && !this.props.arRequest.feedback && <a href="#" className="vanity-link" onClick={this.revoke}>Revoke Invitation</a>}
             </td>
             <td>
@@ -554,6 +553,7 @@ export class AnnualReturnConfirmationStatus extends React.PureComponent {
         </tr>
     }
 }
+
 
 @connect(undefined, {
     showARInvite: (args) => showARInvite(args)
