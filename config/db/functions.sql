@@ -688,7 +688,7 @@ CREATE OR REPLACE FUNCTION ar_deadline(companyId integer, tz text default 'Pacif
         format_iso_date(due) as "dueDate",
         NOT "filedThisYear" AND EXTRACT(MONTH FROM now() AT TIME ZONE $2) = EXTRACT(MONTH FROM due) as "dueThisMonth",
         NOT "filedThisYear" AND EXTRACT(MONTH FROM (now() + '1 month') AT TIME ZONE $2) = EXTRACT(MONTH FROM due) as "dueNextMonth",
-        ar_confirmations($1, EXTRACT(YEAR FROM now() AT TIME ZONE $2)::INT) as "confirmations"
+        CASE WHEN NOT "filedThisYear" THEN ar_confirmations($1, EXTRACT(YEAR FROM now() AT TIME ZONE $2)::INT) ELSE '{}' END as "confirmations"
 
         FROM (
             SELECT "arFilingMonth", date,
