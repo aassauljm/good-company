@@ -684,7 +684,7 @@ CREATE OR REPLACE FUNCTION ar_deadline(companyId integer, tz text default 'Pacif
         format_iso_date(date) as "lastFiling",
         date IS NOT NULL and "filedThisYear" as "filedThisYear",
         EXTRACT(EPOCH FROM now() AT TIME ZONE 'Pacific/Auckland' - due) as "seconds",
-        not "filedThisYear" and due < now() and not "incorporatedThisYear" as "overdue",
+        NOT "filedThisYear" and due < now() and NOT "incorporatedThisYear" as "overdue",
         format_iso_date(due) as "dueDate",
         NOT "filedThisYear" AND EXTRACT(MONTH FROM now() AT TIME ZONE $2) = EXTRACT(MONTH FROM due) as "dueThisMonth",
         NOT "filedThisYear" AND EXTRACT(MONTH FROM (now() + '1 month') AT TIME ZONE $2) = EXTRACT(MONTH FROM due) as "dueNextMonth",
