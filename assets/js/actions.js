@@ -131,7 +131,7 @@ export function requestResource(resource, options = {}) {
     };
 }
 
-export function createResource(resource, data, options = {stringify: true}, meta) {
+export function createResource(resource, data, options = {stringify: true}, meta = {}) {
     if(options && options.stringify === undefined){
         options = {...options, stringify: true}
     }
@@ -363,7 +363,7 @@ export function transactionBulk(data) {
     };
 }
 
-export function companyTransaction(transactionType, companyId, data, options={}, meta) {
+export function companyTransaction(transactionType, companyId, data, options={}, meta = {}) {
     const body = new FormData();
     body.append('json', JSON.stringify({...data, documents: null}));
     (data.documents ||[]).map(d => {
@@ -534,7 +534,7 @@ export function hideARInvite() {
     }
 }
 
-export function showARFeedback(data, meta) {
+export function showARFeedback(data, meta = {}) {
     return {
         type: SHOW_AR_FEEDBACK, data, meta
     }
@@ -546,7 +546,7 @@ export function hideARFeedback() {
     }
 }
 
-export function sendDocument(recipients, renderData, meta) {
+export function sendDocument(recipients, renderData, meta = {}) {
     renderData = {...renderData, goodCompaniesTemplate: true };
     recipients = recipients.map((r) => {
         if(typeof r.name === 'string'){
@@ -611,7 +611,7 @@ export function hideIsLoggedOut() {
     return { type: HIDE_IS_LOGGED_OUT };
 }
 
-export function showUpdate(data, meta) {
+export function showUpdate(data, meta = {}) {
     return { type: SHOW_UPDATE, data, meta };
 }
 
