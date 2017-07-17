@@ -83,6 +83,8 @@ table{
 
 
 .input-group-with-remove, .input-group-with-add{
+    float: left;
+    width: 100%;
     & > div {
         width: 45%;
         float: left;
@@ -108,8 +110,18 @@ table{
             border-top-left-radius: 0;
             height:34px;
             width: 100%;
-                    min-width:30px;
+            min-width:30px;
         }
+    }
+    & > div > div.form-group > .rw-combobox.rw-widget{
+        &:first-child{
+            input{
+                border-radius: 4px;
+                border-bottom-right-radius: 0;
+                border-top-right-radius: 0;
+            }
+        }
+
     }
 }
 

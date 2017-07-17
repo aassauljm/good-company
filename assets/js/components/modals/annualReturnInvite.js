@@ -3,9 +3,9 @@ import React from 'react';
 import Modal from 'react-bootstrap/lib/Modal';
 import Button from 'react-bootstrap/lib/Button';
 import STRINGS from '../../strings';
-import { createResource, hideARInvite, addNotification, requestWorkingDayOffset } from '../../actions';
+import { createResource, hideARInvite, addNotification, requestWorkingDayOffset, showUpdate } from '../../actions';
 import { connect } from 'react-redux';
-import { EmailListForm } from '../forms/email'
+import { EmailListForm, directorEmailUpdateTransaction } from '../forms/email'
 import moment from 'moment';
 import { reduxForm } from 'redux-form';
 import Input from '../forms/input';
@@ -38,33 +38,38 @@ export default class AnnualReturnConfirmationInvite extends React.PureComponent 
         }
         this._submitting = true;
         const data = {
-            year: this.props.renderData.arData.companyFilingYear,
-            arData: this.props.renderData.arData,
+            year: this.props.arData.companyFilingYear,
+            arData: this.props.arData,
             arConfirmationRequests: values.recipients.map((r) => {
-                return {...r, requestBy: this.props.fields.date.value}
+                return {name: (typeof r.name === 'string') ? r.name : r.name.name, email: r.email, requestBy: this.props.fields.date.value}
             })
         }
-        const url = `/company/${this.props.renderData.companyId}/ar_confirmation`;
-        this.props.invite(url, data)
-            .then(() => {
-                this.props.addNotification({
+        const url = `/company/${this.props.companyId}/ar_confirmation`;
+
+        const meta = {
+            onSuccess: [addNotification({
                     message: 'Review invitations sent'
-                });
-                this.close();
-            }).catch((error) => {
-                this.props.addNotification({
+                }), hideARInvite()],
+            onFailure: [addNotification({
                     message: 'Failed to send review invitations',
                     error: true
-                });
-            })
+            })]
+        }
+        const changes = directorEmailUpdateTransaction(values);
+        if(changes.length){
+            meta.onSuccess.push(showUpdate({updateType: 'directorEmails', companyId: this.props.companyId, transactions: changes}))
+        }
+
+        this.props.invite(url, data, {}, meta)
+            .catch((error) => {})
             .then(() => {
                 this._submitting = false;
             });
     }
 
     componentDidMount() {
-        const year = this.props.renderData.arData.companyFilingYear;
-        const month = this.props.renderData.arData.arFilingMonth;
+        const year = this.props.arData.companyFilingYear;
+        const month = this.props.arData.arFilingMonth;
         const format = 'YYYY-MM-DD'
         const firstDayOfNextMonth = moment().year(year).month(month).day(1).endOf('month').startOf('day').add(1, 'day');
         const firstDayOfNextMonthStr = firstDayOfNextMonth.format(format);
@@ -103,7 +108,7 @@ export default class AnnualReturnConfirmationInvite extends React.PureComponent 
                     <p>Add names and email address below to invite others to review the current annual return.  </p>
                     <p>They will receive a link to view and confirm the accuracy of the document, and if necessary, provide feedback for you to evaulate.</p>
                     <p></p>
-                    <EmailListForm initialValues={{recipients: [{}]}} ref="form" onSubmit={this.send} />
+                    <EmailListForm initialValues={{recipients: [{}]}} ref="form" onSubmit={this.send} companyId={this.props.companyId} companyState={this.props.companyState}/>
                     <Input type="text" {...this.props.fields.date} label="Request a response by" help="Defaults to last working day of the due month, if not earlier than today"/>
                 </Modal.Body>
                 <Modal.Footer>

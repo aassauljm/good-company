@@ -3,15 +3,16 @@ import React from 'react';
 import Modal from 'react-bootstrap/lib/Modal';
 import Button from 'react-bootstrap/lib/Button';
 import STRINGS from '../../strings';
-import { sendDocument, hideEmailDocument, addNotification } from '../../actions';
+import { sendDocument, hideEmailDocument, addNotification, showUpdate } from '../../actions';
 import { connect } from 'react-redux';
-import { EmailListForm } from '../forms/email'
+import { EmailListForm, directorEmailUpdateTransaction } from '../forms/email'
+import Loading from '../loading';
+
 
 @connect(state => ({transactionViews: state.transactionViews || DEFAULT_OBJ, sendDocument: state.sendDocument}),
 {
     hide: () => hideEmailDocument(),
-    send: (recipients, renderData) => sendDocument(recipients, renderData),
-    addNotification: (data) => addNotification(data)
+    send: (recipients, renderData, meta) => sendDocument(recipients, renderData, meta)
 })
 export default class EmailDocument extends React.Component {
     constructor() {
@@ -24,18 +25,20 @@ export default class EmailDocument extends React.Component {
         if(this.props.sendDocument._status === 'fetching'){
             return;
         }
-        this.props.send(values.recipients, this.props.renderData)
-            .then(() => {
-                this.props.addNotification({
+        const meta = {
+            onSuccess: [addNotification({
                     message: 'Document sent'
-                });
-                this.close();
-            }).catch((error) => {
-                this.props.addNotification({
+                }), hideEmailDocument()],
+            onFailure: [addNotification({
                     message: 'Failed to send',
                     error: true
-                });
-            });
+            })]
+        }
+        const changes = directorEmailUpdateTransaction(values);
+        if(changes.length){
+            meta.onSuccess.push(showUpdate({updateType: 'directorEmails', companyId: this.props.renderData.companyId, transactions: changes}))
+        }
+        this.props.send(values.recipients, this.props.renderData, meta);
     }
 
     close() {
@@ -43,6 +46,7 @@ export default class EmailDocument extends React.Component {
     }
 
     render() {
+        const loading = this.props.sendDocument._status === 'fetching';
         return (
             <Modal show={true} onHide={this.close} backdrop="static">
                 <Modal.Header closeButton>
@@ -50,7 +54,8 @@ export default class EmailDocument extends React.Component {
                 </Modal.Header>
                 <Modal.Body>
                     <p></p>
-                    <EmailListForm initialValues={{recipients: [{}]}} ref="form" onSubmit={this.send} />
+                    { loading && <Loading/ > }
+                    { !loading && <EmailListForm initialValues={{recipients: [{}]}} companyState={this.props.renderData.companyState} companyId={this.props.renderData.companyId} ref="form" onSubmit={this.send} /> }
                 </Modal.Body>
                 <Modal.Footer>
                     <Button bsStyle='default' onClick={this.close}>Cancel</Button>

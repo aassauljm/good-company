@@ -114,7 +114,7 @@ export class CompanyView extends React.Component {
         return (current.permissions || []).indexOf('update') >= 0;
     }
     renderBody(current) {
-        if(!current){
+        if(!current || current === FAKE_COMPANY){
              return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
         }
 

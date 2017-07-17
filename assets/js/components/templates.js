@@ -376,7 +376,7 @@ export  class TemplateView extends React.PureComponent {
     }
 
     emailDocument(values) {
-        this.props.showEmailDocument(this.buildRenderObject(values));
+        this.props.showEmailDocument({...this.buildRenderObject(values), companyState: this.props.companyState, companyId: this.props.companyId});
     }
 
     previewDocument(values) {

@@ -90,6 +90,7 @@ export function callAPIMiddleware({
                 rejectPayload = () => ({}),
                 payload = {},
                 postProcess,
+                meta
             } = action;
             if (!types || !callAPI) {
                 // Normal action: pass it on
@@ -118,7 +119,7 @@ export function callAPIMiddleware({
                 .then(checkStatus)
                 .then(parse)
                 .then(response => postProcess ? postProcess(response) : response)
-                .then(response => dispatch(Object.assign({}, payload, {
+                .then(response => dispatch(Object.assign({}, payload, {meta: meta}, {
                     response: response,
                     type: successType
                 })))
@@ -138,14 +139,14 @@ export function callAPIMiddleware({
                                 dispatch(logout());
                                 dispatch(showIsLoggedOut());
                             }
-                           dispatch(Object.assign({}, payload, {
+                           dispatch(Object.assign({}, payload, {meta: meta}, {
                                 response: response,
                                 error: true,
                                 type: failureType}));
                                 throw new Error((response || {}).message);
                             })
                     }
-                    dispatch(Object.assign({}, payload, {
+                    dispatch(Object.assign({}, payload, {meta: meta}, {
                         error: error,
                         response: error.response,
                         type: failureType

@@ -5,6 +5,7 @@ import { checkStatus, parse } from './middleware'
 import Promise from 'bluebird';
 import { LOOKUP_COMPANY_CHANGE, LOOKUP_COMPANY_REQUEST, LOOKUP_COMPANY_SUCCESS, LOOKUP_COMPANY_FAILURE,
     LOOKUP_ADDRESS_CHANGE, LOOKUP_ADDRESS_REQUEST, LOOKUP_ADDRESS_SUCCESS, LOOKUP_ADDRESS_FAILURE,
+    SEND_DOCUMENT_SUCCESS, TRANSACTION_REQUEST, RESOURCE_CREATE_SUCCESS,
     LOGOUT, MOUNTED } from './actionTypes';
 import { mounted, showVersionWarning, requestUserInfo, addNotification } from './actions'
 import STRINGS from './strings';
@@ -12,6 +13,29 @@ import STRINGS from './strings';
 
 const fetchAndProcess = (...args) => fetch(...args).then(checkStatus).then(parse);
 
+function *fireOnSuccessActions(action) {
+    if (action.meta && action.meta.onSuccess) {
+        for (const successAction of action.meta.onSuccess) {
+            yield put(successAction);
+        }
+    }
+}
+
+function *fireOnFailureActions(action) {
+    if (action.meta && action.meta.onFailure) {
+        for (const failureAction of action.meta.onFailure) {
+            yield put(failureAction);
+        }
+    }
+}
+
+function *afterActions() {
+    yield takeEvery([
+                   SEND_DOCUMENT_SUCCESS,
+                   TRANSACTION_REQUEST,
+                   RESOURCE_CREATE_SUCCESS
+    ], fireOnSuccessActions)
+}
 
 function* fetchLookupCompany(action) {
     yield put({ type: LOOKUP_COMPANY_REQUEST, payload: action.payload.query });
@@ -121,7 +145,7 @@ export function* longPollVersion() {
 
 
 export function* rootSagas(){
-    yield [lookupCompanyOnChange(),  lookupAddressOnChange(), longPollVersion(), listenToStorage()];
+    yield [lookupCompanyOnChange(),  lookupAddressOnChange(), longPollVersion(), listenToStorage(), afterActions()];
 }
 
 

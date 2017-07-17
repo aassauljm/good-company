@@ -40,7 +40,8 @@ import {
     SHOW_PREVIEW_DOCUMENT, HIDE_PREVIEW_DOCUMENT,
     SHOW_AR_INVITE, HIDE_AR_INVITE,
     SHOW_AR_FEEDBACK, HIDE_AR_FEEDBACK,
-    SHOW_IS_LOGGED_OUT, HIDE_IS_LOGGED_OUT
+    SHOW_IS_LOGGED_OUT, HIDE_IS_LOGGED_OUT,
+    SHOW_UPDATE, HIDE_UPDATE
      } from './actionTypes';
 
 const serialize = function(obj) {
@@ -130,7 +131,7 @@ export function requestResource(resource, options = {}) {
     };
 }
 
-export function createResource(resource, data, options = {stringify: true}) {
+export function createResource(resource, data, options = {stringify: true}, meta) {
     if(options && options.stringify === undefined){
         options = {...options, stringify: true}
     }
@@ -145,7 +146,8 @@ export function createResource(resource, data, options = {stringify: true}) {
             credentials: 'same-origin'
         }),
         confirmation: options.confirmation,
-        payload: {key: resource, form: options.form, invalidateList: options.invalidates, loadingMessage: options.loadingMessage, loadingOptions: options.loadingOptions}
+        payload: {key: resource, form: options.form, invalidateList: options.invalidates, loadingMessage: options.loadingMessage, loadingOptions: options.loadingOptions},
+        meta
     };
 }
 
@@ -361,7 +363,7 @@ export function transactionBulk(data) {
     };
 }
 
-export function companyTransaction(transactionType, companyId, data, options={}) {
+export function companyTransaction(transactionType, companyId, data, options={}, meta) {
     const body = new FormData();
     body.append('json', JSON.stringify({...data, documents: null}));
     (data.documents ||[]).map(d => {
@@ -384,7 +386,8 @@ export function companyTransaction(transactionType, companyId, data, options={})
         }),
         confirmation: confirmation,
         shouldCallAPI: (state) => state.transactions._status !== 'fetching',
-        payload: {companyId: companyId, loadingMessage: options.loadingMessage || 'Submitting Transaction'}
+        payload: {companyId: companyId, loadingMessage: options.loadingMessage || 'Submitting Transaction'},
+        meta
     };
 }
 
@@ -531,9 +534,9 @@ export function hideARInvite() {
     }
 }
 
-export function showARFeedback(data) {
+export function showARFeedback(data, meta) {
     return {
-        type: SHOW_AR_FEEDBACK, data
+        type: SHOW_AR_FEEDBACK, data, meta
     }
 }
 
@@ -543,9 +546,14 @@ export function hideARFeedback() {
     }
 }
 
-export function sendDocument(recipients, renderData) {
+export function sendDocument(recipients, renderData, meta) {
     renderData = {...renderData, goodCompaniesTemplate: true };
-
+    recipients = recipients.map((r) => {
+        if(typeof r.name === 'string'){
+            return r;
+        }
+        return {...r, name: r.name};
+    })
     return {
         types: [SEND_DOCUMENT_REQUEST, SEND_DOCUMENT_SUCCESS, SEND_DOCUMENT_FAILURE],
         callAPI: () => fetch('/api/send_template', {
@@ -553,7 +561,8 @@ export function sendDocument(recipients, renderData) {
             headers: json_headers,
             body: JSON.stringify({ recipients, renderData }),
             credentials: 'same-origin'
-        })
+        }),
+        meta
     };
 }
 
@@ -600,4 +609,12 @@ export function showIsLoggedOut(data) {
 
 export function hideIsLoggedOut() {
     return { type: HIDE_IS_LOGGED_OUT };
+}
+
+export function showUpdate(data, meta) {
+    return { type: SHOW_UPDATE, data, meta };
+}
+
+export function hideUpdate() {
+    return { type: HIDE_UPDATE };
 }

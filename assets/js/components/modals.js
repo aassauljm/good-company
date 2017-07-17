@@ -10,7 +10,7 @@ import PreviewDocument from './modals/previewDocument';
 import AnnualReturnInvite from './modals/annualReturnInvite';
 import ARFeedback from './modals/arFeedback';
 import IsLoggedOut from './modals/isLoggedOut';
-
+import UpdateDialog from './modals/updateDialog';
 
 
 export class Confirmation extends React.Component {
@@ -144,6 +144,9 @@ export default class Modals extends React.Component {
         }
         else if (this.props.modals.isLoggedOut && this.props.modals.isLoggedOut.showing) {
             return <IsLoggedOut {...this.props.modals.isLoggedOut } />
+        }
+         else if (this.props.modals.updateDialog && this.props.modals.updateDialog.showing) {
+            return <UpdateDialog {...this.props.modals.updateDialog } />
         }
         return false;
     }

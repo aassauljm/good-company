@@ -35,7 +35,8 @@ import {
     SHOW_PREVIEW_DOCUMENT, HIDE_PREVIEW_DOCUMENT,
     SHOW_AR_INVITE, HIDE_AR_INVITE,
     SHOW_AR_FEEDBACK, HIDE_AR_FEEDBACK,
-    SHOW_IS_LOGGED_OUT, HIDE_IS_LOGGED_OUT
+    SHOW_IS_LOGGED_OUT, HIDE_IS_LOGGED_OUT,
+    SHOW_UPDATE, HIDE_UPDATE
      } from './actionTypes';
 
 import {
@@ -476,12 +477,12 @@ function modals(state = {}, action) {
             return {...state, emailDocument: {showing: false}}
 
         case SHOW_AR_INVITE:
-            return {...state, arInvite: {renderData: action.data, showing: true}}
+            return {...state, arInvite: {...action.data, showing: true}}
         case HIDE_AR_INVITE:
             return {...state, arInvite: {showing: false}}
 
         case SHOW_AR_FEEDBACK:
-            return {...state, arFeedback: {renderData: action.data, showing: true}}
+            return {...state, arFeedback: {...action.data, showing: true}}
         case HIDE_AR_FEEDBACK:
             return {...state, arFeedback: {showing: false}}
 
@@ -502,7 +503,10 @@ function modals(state = {}, action) {
             return {...state, isLoggedOut: {...action.data, showing: true}}
         case HIDE_IS_LOGGED_OUT:
             return {...state, isLoggedout: {showing: false}}
-
+        case SHOW_UPDATE:
+            return {...state, updateDialog: {...action.data, showing: true}}
+        case HIDE_UPDATE:
+            return {...state, updateDialog: {showing: false}}
         case RESOURCE_REQUEST:
         case RESOURCE_CREATE_REQUEST:
         case RESOURCE_UPDATE_REQUEST:

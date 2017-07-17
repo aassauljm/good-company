@@ -140,3 +140,5 @@ export const HIDE_AR_FEEDBACK = 'HIDE_AR_FEEDBACK';
 export const SHOW_IS_LOGGED_OUT = 'SHOW_IS_LOGGED_OUT';
 export const HIDE_IS_LOGGED_OUT = 'HIDE_IS_LOGGED_OUT';
 
+export const SHOW_UPDATE = 'SHOW_UPDATE';
+export const HIDE_UPDATE = 'HIDE_UPDATE';

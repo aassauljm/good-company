@@ -8,6 +8,8 @@ import { reduxForm } from 'redux-form';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { hideARFeedback, updateResource } from '../../actions';
 import { connect } from 'react-redux';
+
+
 @connect(undefined,
 {
     hide: () => hideARFeedback(),
@@ -24,7 +26,7 @@ export default class ARFeedback extends React.Component {
     }
 
     confirm() {
-        this.props.updateARConfirmation(`/ar_confirmation/${this.props.renderData.code}`, {confirmed: true});
+        this.props.updateARConfirmation(`/ar_confirmation/${this.props.code}`, {confirmed: true});
         this.props.hide();
     }
 
@@ -40,7 +42,7 @@ export default class ARFeedback extends React.Component {
                     <Modal.Title>Annual Return Feedback</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    { Quill && <Quill value={this.props.renderData.feedback} readOnly={true}  modules={{toolbar: false}}/> }
+                    { Quill && <Quill value={this.props.feedback} readOnly={true}  modules={{toolbar: false}}/> }
                 </Modal.Body>
                 <Modal.Footer>
                     <Button bsStyle='default' onClick={this.close}>Close</Button>

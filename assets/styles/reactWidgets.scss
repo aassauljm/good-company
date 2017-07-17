@@ -210,8 +210,10 @@ $rw-version:          "4.1.0";
     width: 18em; //15em; ?
 
     ul.rw-list{
+        padding-left: 0;
         max-height: 200px;
         height: auto;
+
         li.rw-list-option{
             padding-left:1em;
             cursor:pointer;
@@ -221,8 +223,12 @@ $rw-version:          "4.1.0";
             }
         }
     }
+    .rw-list-optgroup{
+        font-weight:bold;
+    }
 
 }
+
 
 .rw-combobox .rw-popup-container{
     width:auto;

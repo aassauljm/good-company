@@ -300,7 +300,7 @@ export class ReviewAnnualReturn extends React.PureComponent {
     }
 
     invite() {
-        this.props.showARInvite({arData: this.props.arSummary.data, companyId: this.props.companyId});
+        this.props.showARInvite({arData: this.props.arSummary.data, companyId: this.props.companyId, companyState: this.props.companyState});
     }
 
 
@@ -336,7 +336,7 @@ export class ReviewAnnualReturn extends React.PureComponent {
 
     render() {
         return <div><LawBrowserContainer lawLinks={ARLinks()}>
-                        <AnnualReturnConfirmations companyId={this.props.companyId}/>
+               <AnnualReturnConfirmations companyId={this.props.companyId} companyState={this.props.companyState}/>
               <Widget className="ar-review" title="Review Annual Return">
                     { this.renderWarning()  }
                     { this.props.arSummary && this.props.arSummary._status === 'complete' && this.props.arSummary.data && <Download url={`/api/company/render/${this.props.companyId}/annual_return`} /> }
@@ -565,7 +565,7 @@ export class AnnualReturnConfirmations extends React.PureComponent {
         this.invite = ::this.invite;
     }
     invite() {
-        this.props.showARInvite({arData: this.props.arConfirmations.data.arData, companyId: this.props.companyId});
+        this.props.showARInvite({arData: this.props.arConfirmations.data.arData, companyId: this.props.companyId, companyState: this.props.companyState});
     }
     render() {
         if(this.props.arConfirmations && this.props.arConfirmations.data){
@@ -719,7 +719,7 @@ export default class AnnualReturn extends React.PureComponent {
         const due = arDue(this.props.companyState.deadlines);
         return <div>
             <LawBrowserContainer lawLinks={ARLinks()}>
-        <AnnualReturnConfirmations companyId={this.props.companyId}/>
+            <AnnualReturnConfirmations  companyId={this.props.companyId} companyState={this.props.companyState}/>
             <Widget className="ar-info" title="Annual Return">
 
                 { !due && <div className="alert alert-warning">According to our records, the annual return for this company is not yet due.</div> }
