@@ -111,10 +111,10 @@ export class CompanyView extends React.Component {
         return (permissions || []).indexOf('update') >= 0;
     }
     canUpdate(current) {
-        return (current.permissions || []).indexOf('update') >= 0;
+        return current === FAKE_COMPANY || (current.permissions || []).indexOf('update') >= 0;
     }
     renderBody(current) {
-        if(!current || current === FAKE_COMPANY){
+        if(!current){
              return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
         }
 
@@ -127,6 +127,7 @@ export class CompanyView extends React.Component {
                         destroyForm: this.props.destroyForm,
                         owner: this.props.data.owner,
                         canUpdate: this.canUpdate(current),
+                        isFullyLoaded: current !== FAKE_COMPANY,
                         showTransactionView: (key, data) => this.props.showTransactionView(key, data)
                 });
         }

@@ -309,7 +309,7 @@ function makeContext(companyState) {
         'company.constitutionFiled': companyState.constitutionFiled,
         'company.name': companyState.companyName,
         'company.number': companyState.companyNumber,
-        'company.directors': companyState.directorList.directors.map(d => ({...d, ...d.person})),
+        'company.directors': companyState.directorList && companyState.directorList.directors.map(d => ({...d, ...d.person})),
         'company.shareholders': personList(companyState),
         'company.votingShareholders': votingShareholderList(companyState),
         'company.holdingsAndHolders': holdingsAndHolders(companyState),

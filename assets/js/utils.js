@@ -280,7 +280,7 @@ export function newHoldingString(newHolding){
 }
 
 export function personList(companyState, filter=() => true, directors = true){
-    const persons = companyState.holdingList.holdings.reduce((acc, h) => {
+    const persons = ((companyState.holdingList || {}).holdings || []).reduce((acc, h) => {
         return h.holders.filter(filter).reduce((acc, p) => {
             acc[p.person.personId] = {...p.person, companyNumber: p.companyNumber || ''}
             return acc;
@@ -288,7 +288,7 @@ export function personList(companyState, filter=() => true, directors = true){
     }, {});
 
     if(directors){
-        companyState.directorList.directors.reduce((acc, p) => {
+        ((companyState.directorList || {}).directors || []).reduce((acc, p) => {
             if(!acc[p.person.personId]){
                 acc[p.person.personId] = {...p.person, companyNumber: p.companyNumber || ''}
             }
@@ -307,7 +307,7 @@ export function votingShareholderList(companyState) {
 }
 
 export function votingShareholderSignatureList(companyState) {
-    return companyState.holdingList.holdings.map((h, i) => {
+    return ((companyState.holdingList || {}).holdings || []).map((h, i) => {
         if(h.holders.length === 1){
             if(isNaturalPerson(h.holders[0].person)){
                 return {...h.holders[0].person, signingMethod: {}};
@@ -345,7 +345,7 @@ export function votingShareholderSignatureList(companyState) {
 }
 
 export function directorSignatureList(companyState) {
-    return companyState.directorList.directors.map((d, i) => {
+    return ((companyState.directorList || {}).directors || []).map((d, i) => {
         return {
             ...d.person,
             signingMethod: {
