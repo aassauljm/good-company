@@ -31,9 +31,12 @@ module.exports = {
 
         tableName: 'organisation',
         classMethods: {
-            updateOrganisation: Promise.method(function(organisation){
+            updateOrganisation: Promise.method(function(organisation, catalexId){
                 if(!organisation){
-                    return
+                    if(catalexId){
+                        return Organisation.destroy({where: {catalexId: catalexId.toString()}});
+                    }
+                    return;
                 }
                 return Organisation.destroy({where: {organisationId: organisation.organisation_id}})
                     .then(() => {

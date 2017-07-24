@@ -29,14 +29,12 @@ function setRoles(user, profile) {
 function updateAccess(user, profile) {
     if((profile.services || []).indexOf('Good Companies') >= 0) {
         return Company.update({suspended: false}, {where: {suspended: true, ownerId: user.id}})
-            .then(() => user)
             .then(() => {
                 return PermissionService.removePermissionUser(user, 'Company', 'create', false, false)
             })
     }
     else {
         return Company.update({suspended: true}, {where: {suspended: false, ownerId: user.id}})
-            .then(() => user)
             .then(() => {
                 return PermissionService.addPermissionUser(user, 'Company', 'create', false, false)
             })
@@ -147,7 +145,7 @@ passport.connect = function (req, query, profile, next) {
 passport.updatePassport = function(query, user, profile, next){
     var provider = profile.provider || query.provider;
     return sequelize.transaction(t => {
-      return Organisation.updateOrganisation(profile.organisation)
+      return Organisation.updateOrganisation(profile.organisation, profile.id)
       .then(() => {
           return sails.models.passport.findOne({ where: {
               provider: provider,
