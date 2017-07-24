@@ -136,6 +136,12 @@ export default class UserFeedback extends React.Component {
     }
 
     render() {
+        if(this.props.children){
+            return <span onClick={this.showForm}>
+                { this.props.children }
+                <UserFeedbackForm visible={this.state.visible} hide={this.hideForm}/>
+                </span>
+        }
         return (
             <div style={this.props.style || {}}>
                 <a className='btn btn-link ' onClick={this.showForm}>Something not working?</a>

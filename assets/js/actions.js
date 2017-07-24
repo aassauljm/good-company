@@ -370,12 +370,12 @@ export function companyTransaction(transactionType, companyId, data, options={},
         // documents[] ?????
         body.append('documents', d, d.name);
     });
-    const confirmation = !options.skipConfirmation && {
+    const confirmation = !options.skipConfirmation && (options.confirmation || {
         title: 'Confirm Transaction',
         description: 'Please confirm the submission of this transaction',
         resolveMessage: 'Confirm',
         resolveBsStyle: 'primary'
-    };
+    });
     return {
         types: [TRANSACTION_REQUEST, TRANSACTION_SUCCESS, TRANSACTION_FAILURE],
         callAPI: () => fetch('/api/transaction/'+transactionType+'/' +companyId, {

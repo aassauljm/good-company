@@ -260,6 +260,7 @@ export default {
     importCompanyHistory: "Reconcile Company History",
     importCompanyFuture: "Reconcile Company Changes",
     resetCompanyHistory: "Undo Company Reconciliation",
+    unapplyShareClasses: "Unapply Share Classes",
     "userFeedback": {
         comment: 'Comment',
         name: 'Name',

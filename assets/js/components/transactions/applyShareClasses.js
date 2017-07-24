@@ -15,7 +15,7 @@ import { push } from 'react-router-redux';
 import Loading from '../loading';
 import { ParcelWithRemove } from '../forms/parcel';
 import { enums as TransactionTypes } from '../../../../config/enums/transactions';
-
+import UserFeedback from '../userFeedback';
 
 function renderHolders(holding){
     return <ul>
@@ -218,6 +218,56 @@ export class ApplyShareClassesTransactionView extends React.Component {
                 <Button onClick={() => this.props.show('manageShareClasses')} bsStyle="success">Manage Share Classes</Button>
                 <Button onClick={() => this.props.end({cancelled: true})} >Cancel</Button>
                  <Button onClick={::this.handleNext} bsStyle="primary" className="submit">{ 'Submit' }</Button>
+              </TransactionView.Footer>
+            </TransactionView>
+    }
+}
+
+@connect((state) => ({transactions: state.transactions}))
+export class UnapplyShareClassesTransactionView extends React.Component {
+    constructor(props) {
+        super(props);
+         this.submit = ::this.submit;
+    }
+
+    handleNext() {
+        this.submit();
+    }
+
+    submit(values) {
+        if(this.props.transactions._status === 'fetching'){
+            return false;
+        }
+        this.props.dispatch(companyTransaction('unapply_share_classes',
+                                this.props.transactionViewData.companyId,
+                                {}, {confirmation: {
+            title: 'Confirm Unapply Share Classes',
+            description: 'This action will require you to reconcile history again',
+            resolveMessage: 'Confirm Unapply Share Classes',
+            resolveBsStyle: 'danger'
+        }}))
+            .then(() => {
+                this.props.end({reload: true});
+                this.props.dispatch(addNotification({message: 'Share classes unapplied.'}));
+            })
+            .catch((err) => {
+                this.props.dispatch(addNotification({message: err.message, error: true}));
+            });
+    }
+
+
+    render() {
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>Unapply Share Classes</TransactionView.Title>
+              </TransactionView.Header>
+              <TransactionView.Body>
+              <p>If you have incorrectly applied share classes, you can reset them to their default values with this control.</p>
+              <p className="text-danger">You will be required to reconcile your company history after unapplying share classes.  If you run into any issues, contact us <UserFeedback><a href="#"><strong className="text-danger">here.</strong></a></UserFeedback></p>
+              </TransactionView.Body>
+              <TransactionView.Footer>
+                <Button onClick={() => this.props.end({cancelled: true})} >Cancel</Button>
+                 <Button onClick={::this.handleNext} bsStyle="primary" className="submit">{ 'Unapply Share Classes' }</Button>
               </TransactionView.Footer>
             </TransactionView>
     }

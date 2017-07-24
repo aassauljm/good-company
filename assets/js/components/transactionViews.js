@@ -8,7 +8,7 @@ import { RedemptionTransactionView } from './transactions/redemption';
 import { PurchaseTransactionView } from './transactions/purchase';
 import { ConsolidationTransactionView } from './transactions/consolidation';
 import { TransferTransactionView } from './transactions/transfer';
-import { ApplyShareClassesTransactionView } from './transactions/applyShareClasses';
+import { ApplyShareClassesTransactionView, UnapplyShareClassesTransactionView } from './transactions/applyShareClasses';
 import { CompanyDetailsTransactionView } from './transactions/updateCompanyInfo';
 import { NewHoldingTransactionView } from './transactions/newHolding';
 import { UpdateHoldingTransactionView } from './transactions/updateHolding';
@@ -70,6 +70,9 @@ export class TransactionViewSwitch extends React.PureComponent {
 
             case 'applyShareClasses':
                 return <ApplyShareClassesTransactionView {...props} />
+
+            case 'unapplyShareClasses':
+                return <UnapplyShareClassesTransactionView {...props} />
 
             case 'updateCompany':
                 return <CompanyDetailsTransactionView {...props} />

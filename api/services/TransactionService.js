@@ -1216,7 +1216,7 @@ export  function performApplyShareClass(data, nextState, companyState, effective
         if(index < 0){
             throw new sails.config.exceptions.InvalidOperation('Cannot find holding to apply share class to')
         }
-        if(!isReplay && (holdingList.dataValues.holdings[index].parcels.length > 1 || holdingList.dataValues.holdings[index].parcels[0].shareClass)){
+        if(!isReplay && (holdingList.dataValues.holdings[index].parcels.length > 1 || holdingList.dataValues.holdings[index].parcels[0].shareClass) && !data.force){
             throw new sails.config.exceptions.InvalidOperation('Share classes are all ready applied for this shareholding')
         }
         else if(isReplay){
@@ -1239,6 +1239,22 @@ export  function performApplyShareClass(data, nextState, companyState, effective
     });
 };
 
+export  function performUnapplyShareClasses(data, nextState, companyState, effectiveDate, userId, isReplay){
+    let index, holdingList;
+    return nextState.dataValues.holdingList.buildNext()
+    .then(function(_holdingList){
+        holdingList = _holdingList;
+        nextState.dataValues.holdingList = holdingList;
+        nextState.dataValues.h_list_id = null;
+        return holdingList.dataValues.holdings.map(h => h.buildNext());
+    })
+    .then(newHoldings => {
+        holdingList.dataValues.holdings = newHoldings;
+        newHoldings.map((newHolding) => {
+            newHolding.dataValues.parcels = Parcel.build({amount: newHolding.dataValues.parcels.reduce((sum, p) => sum + p.amount, 0)})
+        });
+    });
+};
 
 export const validateRemoveDirector = Promise.method(function(data, companyState){
     const director = _.find(companyState.dataValues.directorList.dataValues.directors, (d)=> {
@@ -1961,6 +1977,32 @@ function validateTransactionSet(data, companyState){
             actionSet: data
         });
     }
+}
+
+export function performCustomTransaction(data, company, companyState, transactionFunction){
+    let nextState, current;
+    const effectiveDate = data.effectiveDate || new Date();
+    return (companyState ? Promise.resolve(companyState) : company.getCurrentCompanyState())
+        .then(function(_state){
+            current = _state;
+            return current.buildNext({previousCompanyStateId: current.dataValues.id, pending_future_action_id: current.dataValues.pending_future_action_id});
+        })
+        .then(function(_nextState){
+            nextState = _nextState;
+            return transactionFunction(data, nextState, current, effectiveDate, company.get("ownerId"))
+        })
+        .then(function(){
+            return nextState.save();
+        })
+        .then(function(){
+            return company.setCurrentCompanyState(nextState);
+        })
+        .then(function(){
+            return company.save();
+        })
+        .then(function(){
+            return nextState;
+        })
 }
 
 

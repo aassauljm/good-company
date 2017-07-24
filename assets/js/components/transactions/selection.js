@@ -144,14 +144,17 @@ export class UpdateHoldingHolderTransactionView extends React.Component {
 export class ResetDeleteTransactionView extends React.Component {
 
     render() {
-        return <SelectionBase {...this.props} title="Update Shareholdings and Shareholders">
+        return <SelectionBase {...this.props} title="Reset or Delete">
+            <div className="actionable select-button"  onClick={() => this.props.show('unapplyShareClasses')} >
+                <span className="glyphicon glyphicon-fire"></span>
+                <span className="transaction-button-text">{ STRINGS.unapplyShareClasses }</span>
+            </div>
             <div className="actionable select-button"  onClick={() => this.props.show('resetHistory')} >
                 <span className="glyphicon glyphicon-refresh"></span>
                 <span className="transaction-button-text">{ STRINGS.resetCompanyHistory }</span>
-
             </div>
             <div className="actionable select-button" onClick={() => this.props.show('reparseResetHistory')} >
-                <span className="glyphicon glyphicon-refresh"></span>
+                <span className="glyphicon glyphicon-cloud-upload"></span>
                 <span className="transaction-button-text">Reimport Source Data and Reset</span>
             </div>
 

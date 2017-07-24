@@ -508,7 +508,62 @@ const selfManagedTransactions = {
                 return {messages}
             })
     },
+    unapply_share_classes: function (data, company){
+        /* to apply, retroactively, a share class:
+            * clone current state without apply previousCompanyStateId.
+            * set shareClass ids on parcels
+            * import historic actions, until SEED
+        */
+        let state, companyName, historic_action_id, newRoot;
+        data.effectiveDate = new Date();
+        return sequelize.transaction(function(){
+            return company.getCurrentCompanyState()
+                .then(currentState => {
+                    historic_action_id = currentState.get('historic_action_id');
+                    return TransactionService.performCustomTransaction({
+                            actions: [{}],
+                            effectiveDate: data.effectiveDate,
+                        }, company, currentState, TransactionService.performUnapplyShareClasses);
+                })
+                .then(_state => {
+                    state = _state;
+                    companyName = state.get('companyName');
+                    return state.buildPrevious({
+                        transaction: null,
+                        transactionId: null,
+                        previousCompanyStateId: null,
+                        pending_historic_action_id: historic_action_id }, {newRecords: false});
+                })
+                .then(function(_newRoot){
+                    newRoot = _newRoot
+                    return newRoot.save();
+                })
+                .then(function(){
+                    sails.log.info('History reset for companyState', state.id);
+                    return state.setPreviousCompanyState(newRoot);
+                })
 
+                .then(state => {
+                    return state.save();
+                })
+            })
+            .then(state => {
+                return TransactionService.performInverseAllPending(company, (action => action.data.transactionType === Transaction.types.SEED))
+                .catch(e => {
+                    // swallow import error
+                    sails.log.error(e)
+                })
+            })
+            .then(function() {
+                return {
+                    message: `Share Classes unapplied for ${companyName}`
+                }
+            })
+            .then(function(messages){
+
+                return {messages}
+            })
+    },
     createThenApplyShareClassAllHoldings: function(data, company){
         let companyState, shareClass;
         return transactions.createShareClass(data, company)
